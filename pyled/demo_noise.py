@@ -16,9 +16,9 @@ display.flush()
 display.send()
 while True:
     display.flush()
-    for row in range(0, 8*4):
+    for row in range(0, 8*DISPLAY_LINES):
         for col in range(0, 32):
             display.setByte(row, col, random.randint(0, 255))
-    display.send(1)
-    display.send(2)
+    for i in range(0, DISPLAY_LINES):
+        display.send(i)
 
