@@ -89,11 +89,13 @@ def sortBy(buses, paramKey):
         return sorted(buses, key=lambda bus: int(bus['PublishedLineName']))
 
 def filterByDirection(buses, directionstr):
-    print "filter called with directionstring: %s" % directionstr
+    originalCount = len(buses)
     if 'e' not in directionstr.lower():
         buses = filter(lambda bus: int(bus['DirectionRef']) != 1, buses)
-    if 'w' not in directionstr.lower() == 'w':
+    if 'w' not in directionstr.lower():
         buses = filter(lambda bus: int(bus['DirectionRef']) != 2, buses)
+    print "filter called with directionstring=%s buses dropped=%d/%d" % \
+        (directionstr, originalCount-len(buses), originalCount)
     return buses
 
 def filterBusesByTimeLeftMoreThan(buses, secondsleft):
