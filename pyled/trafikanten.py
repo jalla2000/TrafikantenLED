@@ -14,6 +14,7 @@ DEVICE = '/dev/ttyUSB0'
 MODE_ASCEND = 'layout=ascend'
 MODE_HSCROLL = 'layout=hscroll'
 MODE_STATIC = 'layout=static'
+MODE_HYBRID = 'layout=hybrid'
 DISPLAY_MODE = MODE_ASCEND
 STOPIDS = {}
 STOPIDS[u'Thune'] = 3012507
@@ -46,6 +47,8 @@ def readConfigPreset():
             DISPLAY_MODE=MODE_HSCROLL
         if MODE_STATIC in config:
             DISPLAY_MODE=MODE_STATIC
+        if MODE_HYBRID in config:
+            DISPLAY_MODE=MODE_HYBRID
         if 'port=' in config:
             DEVICE = config.split('port=')[1].split()[0]
             print "Port defined in .config: %s" % DEVICE
@@ -305,6 +308,17 @@ while True:
                 ascendOnLines(0, timeSorted, DISPLAY_LINES)
                 ageOfLastRequest = time.time() - lastRequestTime
                 if MINIMUM_REQUEST_INTERVAL - ageOfLastRequest > 4:
+                    for i in range(0, min(DISPLAY_LINES, len(timeSorted))):
+                        drawOnLine(i, timeSorted[i])
+            elif DISPLAY_MODE == MODE_HYBRID:
+                noOfStaticLines = min(DISPLAY_LINES/2, len(timeSorted))
+                for i in range(0, noOfStaticLines):
+                    drawOnLine(i, timeSorted[i])
+                display.send()
+                ascendOnLines(noOfStaticLines, timeSorted[noOfStaticLines:], DISPLAY_LINES-noOfStaticLines, stepSize=1)
+                ageOfLastRequest = time.time() - lastRequestTime
+                if MINIMUM_REQUEST_INTERVAL - ageOfLastRequest > 2:
+                    display.flush()
                     for i in range(0, min(DISPLAY_LINES, len(timeSorted))):
                         drawOnLine(i, timeSorted[i])
         else:
