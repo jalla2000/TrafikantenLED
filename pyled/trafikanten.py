@@ -38,6 +38,8 @@ def stopIdToName(stopId):
 
 def readConfigPreset():
     global DISPLAY_MODE
+    global DISPLAY_LINES
+    global DEVICE
     try:
         cfgFile = open('.config')
         config = cfgFile.read()
@@ -77,7 +79,8 @@ def readConfigPreset():
         print "No config preset found..."
 
 readConfigPreset()
-print "Using %s" % DISPLAY_MODE
+print "Using mode=%s" % DISPLAY_MODE
+print "Monitoring stops: ", STOPS
 
 def dateStrToStruct(datestring):
     return time.gmtime(int(datestring.split('(')[1].split('+')[0])/1000)
@@ -124,18 +127,18 @@ def fetchRealTimeData(stopid=0, compressNames=True, fake=False):
     if stopid == 0:
         return []
     trafikantenUrl = 'http://api-test.trafikanten.no/RealTime/GetRealTimeData/' + str(stopid)
+    print trafikantenUrl
     jsonfile = open('last_fetched.json', 'w')
     if fake:
+        print "FAKE HTTP FETCH! (file read)"
         jsonstr = jsonfile.read()
     else:
         response = urllib2.urlopen(trafikantenUrl)
         jsonstr = response.read()
+        #print jsonstr
         jsonfile.write(jsonstr)
     jsonfile.close()
-    if len(jsonstr) > 0:
-        buses = json.loads(jsonstr)
-    else:
-        return []
+    buses = json.loads(jsonstr)
 
     for bus in buses:
         bus['DestinationDisplay'] = compressName(bus['DestinationDisplay'])
@@ -203,7 +206,9 @@ def scrollOnLine(lineNo, buses):
 
 def ascendOnLine(lineNo, buses):
     for bus in buses:
-        print "Ascending %s on line %d" % (bus['PublishedLineName'] + " " + bus['DestinationDisplay'], lineNo)
+        print "Ascending %s on line %d" % \
+            (bus['LineRef'] + " " + bus['DestinationDisplay'] +
+             " " + str(minutesLeft(bus)) + " min", lineNo)
         for i in range(0, 17):
             display.flush(lineNo)
             display.setPos(x=0, y=8*lineNo+(8-i))
@@ -224,7 +229,7 @@ def ascendOnLine(lineNo, buses):
             else:
                 time.sleep(0.03)
 
-def ascendOnLines(lineNo, buses, lineSpan):
+def ascendOnLines(lineNo, buses, lineSpan, stepSize=2):
     lineSpan -= 1
     busCount = len(buses)
     print "Ascending %d buses on line %d to line %d" % (len(buses), lineNo, lineNo+lineSpan)
@@ -244,7 +249,7 @@ def ascendOnLines(lineNo, buses, lineSpan):
                 display.writeTxt(u'nå', color='red', xpos=116)
         for j in range(lineNo, lineNo+lineSpan+1):
             display.send(j)
-        if i % 16 == 0:
+        if i % (8*stepSize) == 0:
             time.sleep(1)
 
 def dumpBusList(buses):
@@ -331,8 +336,13 @@ while True:
     except IOError:
         print "Failed to fetch data"
         display.writeTxt("Offline...", color='red')
+    except ValueError:
+        print "Error: probably JSON parse error"
+        display.writeTxt("Se tidtabell", color='red')
+        display.send()
     ageOfLastRequest = time.time() - lastRequestTime
     delay = MINIMUM_REQUEST_INTERVAL - ageOfLastRequest
-    print "%d seconds since last request. Sleeping %d seconds..." % (ageOfLastRequest, max(0, delay))
+    print "%d seconds since last request. Sleeping %d seconds...\n\n" % (ageOfLastRequest, max(0, delay))
     if delay > 0:
         time.sleep(delay)
+
