@@ -5,8 +5,13 @@ import serial
 
 class LedDisplay():
     def __init__(self, font, lines=4, device='/dev/ttyUSB0'):
-        self.connection = serial.Serial(device,
-                                        115200,
+        self.connection = serial.Serial(port=device,
+                                        #baudrate=921600,
+                                        baudrate=460800,
+                                        #baudrate=230400,
+                                        #baudrate=153600,
+                                        #baudrate=115200,
+                                        xonxoff=True,
                                         timeout=1)
         self.PIXELS_PER_LINE = 8
         self.font = font
