@@ -79,7 +79,6 @@ class LedDisplay():
                         self.gfxBuffer[row+self.currentY][col+2] |= self.font[letter][row][1]<<(8-fraction*2) & colorfilter
             self.currentX += self.font.widths[letter]+1
 
-    # TODO: drawSprite should be merged with subset of writeTxt
     def drawSprite(self, sprite, xpos, ypos, color='green'):
         colorfilter = 0b11111111
         if color.lower() == 'green':
