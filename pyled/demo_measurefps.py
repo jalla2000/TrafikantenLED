@@ -25,6 +25,8 @@ def moveSnowflakes(flake):
 for i in range(0, 30):
     snowflakes.append([random.randint(0, 127), random.randint(0, 31)])
 
+tick = 0.0
+fps = 0.0
 while True:
     counter += 1
     display.flush()
@@ -35,6 +37,11 @@ while True:
         if color == 1: color = 'red'
         if color == 2: color = 'orange'
         display.setPixel(flake[0], flake[1], color)
-    display.writeTxt(str(counter), color='green', xpos=60, ypos=13)
+    display.writeTxt("Frame: %s" % str(counter), color='green', xpos=30, ypos=12)
+    if (counter % 10 == 0):
+        now = time.time()
+        fps = 1.0/(now - tick)*10
+        tick = now
+    display.writeTxt("FPS: %s" % str(fps)[:5], color='green', xpos=30, ypos=20)
     display.send()
 
