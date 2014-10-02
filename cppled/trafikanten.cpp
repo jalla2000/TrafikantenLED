@@ -46,6 +46,7 @@ public:
     std::string lineNo_;
     std::string destinationDisplay_;
     std::string expectedDepartureTime_;
+    unsigned int etaSeconds_;
     std::string directionRef_;
     unsigned destinationRef_;
     bool inCongestion_;
@@ -64,6 +65,10 @@ std::vector<Departure> fetchDepartures()
     if (reader.parse(content, parsed)) {
         std::cout << "parse success:\n";
         std::cout << styledWriter.write(parsed[0]) << std::endl;
+        time_t rawtime;
+        time(&rawtime);
+        std::cout << "time=" << rawtime << std::endl;
+        //tm * ptm = gmtime(&rawtime);
         for (size_t i = 0; i < parsed.size(); ++i) {
             departures.push_back(Departure());
             Departure & dep = departures.back();
@@ -85,21 +90,15 @@ std::vector<Departure> fetchDepartures()
 
 int main()
 {
-    time_t rawtime;
-    time(&rawtime);
-    std::cout << "time=" << rawtime << std::endl;
-    //tm * ptm = gmtime(&rawtime);
     LedFont busFont;
     LedDisplay display("/dev/ttyUSB0", 4, &busFont);
-    return 0;
-
-    std::vector<Departure> departures = fetchDepartures();
     std::string error;
     display.open(error);
     if (!error.empty()) {
-        std::cout << "ERROR" << std::endl;
+        std::cout << "ERROR: Failed to open tty device" << std::endl;
         return 1;
     }
+    std::vector<Departure> departures = fetchDepartures();
     Funky funk;
     while (true) {
         // for (int i = -50; i < 140; ++i) {
