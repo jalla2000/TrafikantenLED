@@ -89,11 +89,11 @@ int main()
     time(&rawtime);
     std::cout << "time=" << rawtime << std::endl;
     //tm * ptm = gmtime(&rawtime);
+    LedFont busFont;
+    LedDisplay display("/dev/ttyUSB0", 4, &busFont);
     return 0;
 
     std::vector<Departure> departures = fetchDepartures();
-    LedFont busFont;
-    LedDisplay display("/dev/ttyUSB0", 4, &busFont);
     std::string error;
     display.open(error);
     if (!error.empty()) {
