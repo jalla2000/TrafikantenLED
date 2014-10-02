@@ -6,8 +6,10 @@
 #include <jsoncpp/json/json.h>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <cassert>
 #include <cstring>
+#include <ctime>
 
 static size_t httpCallback(void * buffer,
                            size_t size,
@@ -33,7 +35,23 @@ std::string httpRequest(const std::string & url)
     return std::string(response);
 }
 
-void fetchRealTimeData()
+class Departure {
+public:
+    std::string str() {
+        std::ostringstream oss;
+        oss << lineNo_ << " " << destinationDisplay_ << " " << expectedDepartureTime_
+            << " dir=" << directionRef_ << (inCongestion_ ? " CONGESTION" : "");
+        return oss.str();
+    }
+    std::string lineNo_;
+    std::string destinationDisplay_;
+    std::string expectedDepartureTime_;
+    std::string directionRef_;
+    unsigned destinationRef_;
+    bool inCongestion_;
+};
+
+std::vector<Departure> fetchDepartures()
 {
     std::string stopId = "3010531";
     std::string url = "http://reis.trafikanten.no/reisrest/realtime/getalldepartures/" + stopId;
@@ -42,24 +60,38 @@ void fetchRealTimeData()
     Json::Reader reader;
     Json::Value parsed;
     Json::StyledWriter styledWriter;
+    std::vector<Departure> departures;
     if (reader.parse(content, parsed)) {
         std::cout << "parse success:\n";
-        //std::cout << styledWriter.write(parsed) << std::endl;
+        std::cout << styledWriter.write(parsed[0]) << std::endl;
         for (size_t i = 0; i < parsed.size(); ++i) {
-            std::string lineNo = parsed[(int)i]["PublishedLineName"].asString();
-            std::string destName = parsed[(int)i]["DestinationName"].asString();
-            std::cout << lineNo << " " << destName << std::endl;
+            departures.push_back(Departure());
+            Departure & dep = departures.back();
+            dep.lineNo_ = parsed[(int)i]["PublishedLineName"].asString();
+            dep.destinationDisplay_ = parsed[(int)i]["DestinationDisplay"].asString();
+            dep.expectedDepartureTime_ = parsed[(int)i]["ExpectedDepartureTime"].asString();
+            dep.destinationRef_ = parsed[(int)i]["DestinationRef"].asUInt();
+            dep.directionRef_ = parsed[(int)i]["DirectionRef"].asString();
+            dep.inCongestion_ = parsed[(int)i]["InCongestion"].asBool();
+            std::cout << dep.str() << std::endl;
         }
     }
     else {
         std::cout << "PARSE ERROR" << std::endl;
     }
+    return departures;
     //std::cout << "BusName=" << parser.getString("BusName") << std::endl;
 }
 
 int main()
 {
-    fetchRealTimeData();
+    time_t rawtime;
+    time(&rawtime);
+    std::cout << "time=" << rawtime << std::endl;
+    //tm * ptm = gmtime(&rawtime);
+    return 0;
+
+    std::vector<Departure> departures = fetchDepartures();
     LedFont busFont;
     LedDisplay display("/dev/ttyUSB0", 4, &busFont);
     std::string error;
