@@ -1,7 +1,14 @@
-#ifndef ACTUAL_LEDDISPLAY_HPP
-#define ACTUAL_LEDDISPLAY_HPP
+#ifndef LEDDISPLAY_HPP
+#define LEDDISPLAY_HPP
 
 #include "ledfont.hpp"
+#include <iostream>
+#include <cstring>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
 
 class LedDisplay {
 public:
@@ -28,7 +35,7 @@ public:
     {
     }
     ~LedDisplay() {
-        close(deviceFileHandle_);
+        ::close(deviceFileHandle_);
     }
 
     bool open(std::string & error)

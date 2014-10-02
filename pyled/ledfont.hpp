@@ -2,6 +2,7 @@
 #define LEDFONT_HPP
 
 #include "fontletter.hpp"
+#include <map>
 
 class LedFont {
 public:

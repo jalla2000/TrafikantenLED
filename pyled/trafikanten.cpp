@@ -1,17 +1,13 @@
-#include "sprite.hpp"
+#include "leddisplay.hpp"
 #include "ledfont.hpp"
+#include "sprite.hpp"
 #include <iostream>
-#include <termios.h>
-#include <fcntl.h>
 #include <curl/curl.h>
 #include <jsoncpp/json/json.h>
 #include <vector>
 #include <map>
-#include <unistd.h>
 #include <cassert>
 #include <cstring>
-#include <errno.h>
-#include <stdio.h>
 
 static size_t httpCallback(void * buffer,
                            size_t size,

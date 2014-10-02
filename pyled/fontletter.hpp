@@ -1,6 +1,10 @@
 #ifndef FONTLETTER_HPP
 #define FONTLETTER_HPP
 
+#include "sprite.hpp"
+#include <string>
+#include <cassert>
+
 class FontLetter : public Sprite {
 public:
     FontLetter(const std::string & character)

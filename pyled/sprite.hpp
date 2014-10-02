@@ -1,6 +1,9 @@
 #ifndef SPRITE_HPP
 #define SPRITE_HPP
 
+#include <cstddef>
+#include <vector>
+
 class Sprite {
 public:
     Sprite()
