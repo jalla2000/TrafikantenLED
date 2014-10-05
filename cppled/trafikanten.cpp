@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstring>
 #include <ctime>
+#include <unistd.h>
 
 static size_t httpCallback(void * buffer,
                            size_t size,
@@ -78,7 +79,7 @@ std::vector<Departure> fetchDepartures()
             dep.destinationRef_ = parsed[(int)i]["DestinationRef"].asUInt();
             dep.directionRef_ = parsed[(int)i]["DirectionRef"].asString();
             dep.inCongestion_ = parsed[(int)i]["InCongestion"].asBool();
-            std::cout << dep.str() << std::endl;
+            //std::cout << dep.str() << std::endl;
         }
     }
     else {
@@ -98,32 +99,33 @@ int main()
         std::cout << "ERROR: Failed to open tty device" << std::endl;
         return 1;
     }
+    // for (int i = 0; i < 40; ++i) {
+    //     //const Departure & dep = departures[0];
+    //     display.flush(-1);
+    //     display.currentX_ = 0;
+    //     display.currentY_ = 0;
+    //     display.writeTxt("Bygdøy", LedDisplay::RED);
+    //     display.send();
+    // }
+    // return 0;
     std::vector<Departure> departures = fetchDepartures();
     Funky funk;
     while (true) {
-        // for (int i = -50; i < 140; ++i) {
-        //     display.currentX_ = i;
-        //     display.currentY_ = i;
-        //     display.flush(-1);
-        //     display.drawSprite(funk, LedDisplay::RED);
-        //     display.send();
-        // }
-        for (int i = 128; i > -160; --i) {
-            display.flush(-1);
-            display.currentX_ = i;
-            display.currentY_ = 0;
-            display.writeTxt("Hello dickheads!", LedDisplay::RED);
-            display.currentX_ = i+10;
-            display.currentY_ = 8;
-            display.writeTxt("Hello dickheads!", LedDisplay::GREEN);
-            display.currentX_ = i+20;
-            display.currentY_ = 16;
-            display.writeTxt("Hello dickheads!", LedDisplay::ORANGE);
-            display.currentX_ = i+30;
-            display.currentY_ = 24;
-            display.writeTxt("Hello dickheads!", LedDisplay::RED);
-            display.send();
+    for (int i = 32; i > -19; --i) {
+        std::cout << "Scrolling pos=" << i << std::endl;
+        display.flush(-1);
+        for (size_t j = 0; j < departures.size(); ++j)
+        {
+            const Departure & dep = departures[j];
+            display.currentX_ = 0;
+            display.currentY_ = i+(j*8);
+            display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
+            display.currentX_ = 16;
+            display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
         }
+        display.send();
+        usleep(1000*20);
+    }
     }
     return 0;
 }

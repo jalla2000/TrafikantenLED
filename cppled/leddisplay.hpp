@@ -95,13 +95,21 @@ public:
     void writeTxt(const std::string & text, Color color)
     {
         for (size_t i = 0; i < text.size(); ++i) {
-            const FontLetter & letter = font_->chars_[std::string(1, text[i])];
-            // if (letter.dataWidth_ == 0) {
-            //     std::cout << "ERROR: Failed to lookup sprite for letter '" << text.substr(i, 1) << "'" << std::endl;
-            //     continue;
-            // }
+            unsigned bytes = 1;
+            if ((unsigned char)text[i] >= 128) {
+                // multibyte character (limited support)
+                bytes = 2;
+            }
+            if (!font_->chars_.count(text.substr(i, bytes))) {
+                std::cout << "Failed to lookup letter='" << text.substr(i, bytes) << "'" << std::endl;
+                assert(false && "Missing font");
+            }
+            const FontLetter & letter = font_->chars_[text.substr(i, bytes)];
             drawSprite(letter, color);
             currentX_ += letter.fontWidth_;
+            if (bytes > 1) {
+                ++i;
+            }
         }
     }
 
