@@ -92,7 +92,7 @@ void LedDisplay::writeTxt(const std::string & text, Color color)
         }
         const FontLetter & letter = font_->chars_[text.substr(i, bytes)];
         drawSprite(letter, color);
-        currentX_ += letter.fontWidth_;
+        currentX_ += letter.spriteWidth_;
         if (bytes > 1) {
             ++i;
         }
