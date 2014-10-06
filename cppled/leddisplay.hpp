@@ -128,8 +128,8 @@ public:
             if (dstRow > DISPLAY_HEIGHT)
                 break;
             const unsigned fraction = (currentX_ % 4)*BITS_PER_PIXEL;
-            if (fraction) {
-                if (dstCol < BYTES_PER_LINE && dstCol >= 0) {
+            if (fraction && dstRow >= 0 && dstRow < DISPLAY_HEIGHT) {
+                if (dstCol >= 0 && dstCol < BYTES_PER_LINE) {
                     gfxBuffer_[dstCol+(dstRow*BYTES_PER_LINE)] |= (sprite.data_[i] & colorfilter) >> fraction;
                 }
                 if (dstCol+1 < BYTES_PER_LINE && dstCol+1 >= 0) {

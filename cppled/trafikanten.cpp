@@ -111,7 +111,7 @@ int main()
     std::vector<Departure> departures = fetchDepartures();
     Funky funk;
     while (true) {
-    for (int i = 32; i > -19; --i) {
+    for (int i = 32; i > -150; --i) {
         std::cout << "Scrolling pos=" << i << std::endl;
         display.flush(-1);
         for (size_t j = 0; j < departures.size(); ++j)

@@ -24,7 +24,7 @@ public:
                 P(0b00000000);P(0b00000000);
                 P(0b00000000);P(0b00000000);
                 P(0b00000000);P(0b00000000);
-                fontWidth_ 6;
+                fontWidth_ = 6;
                 break;
             case '-':
                 P(0b00000000);P(0b00000000);
@@ -791,7 +791,6 @@ public:
             for (size_t col = 0; col < dataWidth_; ++col) {
                 size_t width = 0;
                 unsigned char data = data_[col+row*dataWidth_];
-                std::cout << (long)data << std::endl;
                 if (data & 0b11000000)
                     width = 1;
                 if (data & 0b00110000)
