@@ -58,6 +58,17 @@ public:
     bool inCongestion_;
 };
 
+int parseTime(std::string t)
+{
+    // Typical input "/Date(1412619557000+0200)/"
+    t = t.substr(t.find("Date(")+5);
+    t = t.substr(0, t.find("+")-3);
+    std::istringstream ss(t);
+    int ret;
+    ss >> ret;
+    return ret;
+}
+
 std::vector<Departure> fetchDepartures()
 {
     std::string stopId = "3010531";
@@ -73,8 +84,8 @@ std::vector<Departure> fetchDepartures()
         std::cout << styledWriter.write(parsed[0]) << std::endl;
         time_t rawtime;
         time(&rawtime);
-        std::cout << "time=" << rawtime << std::endl;
         //tm * ptm = gmtime(&rawtime);
+        //int a = rawtime;
         for (size_t i = 0; i < parsed.size(); ++i) {
             departures.push_back(Departure());
             Departure & dep = departures.back();
@@ -97,6 +108,10 @@ std::vector<Departure> fetchDepartures()
 
 int main()
 {
+    std::string testTime = "/Date(1412619557000+0200)/";
+    int t = parseTime(testTime);
+    std::cout << "time=" << t << std::endl;
+    return 0;
     LedFont busFont;
     LedDisplay display("/dev/ttyUSB0", 4, &busFont);
     std::string error;
