@@ -36,7 +36,7 @@ public:
             }
         }
         assert(widest > 0);
-        spriteWidth_ = widest + 1;
+        spriteWidth_ = widest;
     }
     void P(unsigned char data) { data_.push_back(data); }
     size_t width() { return dataWidth_*8; }
