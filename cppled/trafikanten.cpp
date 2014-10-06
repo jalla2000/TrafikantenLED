@@ -38,6 +38,11 @@ std::string httpRequest(const std::string & url)
 
 class Departure {
 public:
+    void compressName() {
+        destinationDisplay_ = destinationDisplay_.substr(
+            0,
+            destinationDisplay_.find(" stasjon"));
+    }
     std::string str() {
         std::ostringstream oss;
         oss << lineNo_ << " " << destinationDisplay_ << " " << expectedDepartureTime_
@@ -80,6 +85,7 @@ std::vector<Departure> fetchDepartures()
             dep.directionRef_ = parsed[(int)i]["DirectionRef"].asString();
             dep.inCongestion_ = parsed[(int)i]["InCongestion"].asBool();
             //std::cout << dep.str() << std::endl;
+            dep.compressName();
         }
     }
     else {
@@ -111,8 +117,8 @@ int main()
     std::vector<Departure> departures = fetchDepartures();
     Funky funk;
     while (true) {
-    for (int i = 32; i > -150; --i) {
-        std::cout << "Scrolling pos=" << i << std::endl;
+    for (int i = 32; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()); --i)
+    {
         display.flush(-1);
         for (size_t j = 0; j < departures.size(); ++j)
         {
@@ -124,7 +130,7 @@ int main()
             display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
         }
         display.send();
-        usleep(1000*20);
+        //usleep(1000*20);
     }
     }
     return 0;
