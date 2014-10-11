@@ -99,27 +99,25 @@ void foreachUtfCharacter(
     }
 }
 
-bool LedDisplay::count(const std::string & character)
-{
-    if (!font_->chars_.count(character)) {
-        std::cout << "Failed to lookup letter='" << character << "'" << std::endl;
-        assert(false && "Missing font");
+struct WidthCounter {
+    WidthCounter(const LedFont & font) : font_(font), count_(0) { }
+    bool count(const std::string & character) {
+        if (!font_.chars_.count(character)) {
+            std::cout << "Failed to lookup letter='" << character << "'" << std::endl;
+            assert(false && "Missing font");
+        }
+        count_ += font_.chars_.at(character).spriteWidth_;
+        return true;
     }
-    widthCounter_ += font_->chars_.at(character).spriteWidth_;
-    return true;
-}
-
-// struct WidthCounter {
-    
-// };
+    const LedFont & font_;
+    size_t count_;
+};
 
 size_t LedDisplay::widthOfTxt(const std::string & text)
 {
-    widthCounter_ = 0;
-    boost::function<bool (const std::string &)> fun =
-        boost::bind(&LedDisplay::count, this, _1);
-    foreachUtfCharacter(text, fun);
-    return widthCounter_;
+    WidthCounter cnt(*font_);
+    foreachUtfCharacter(text, boost::bind(&WidthCounter::count, &cnt, _1));
+    return cnt.count_;
 }
 
 bool LedDisplay::writeCharacter(const std::string & character,

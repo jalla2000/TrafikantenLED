@@ -37,14 +37,12 @@ public:
     std::vector<unsigned char> gfxBuffer_;
     int currentX_;
     int currentY_;
-    bool count(const std::string & character);
 
 private:
     const std::string devicePath_;
     int deviceFileHandle_;
     int lines_;
     LedFont * font_;
-    size_t widthCounter_;
 };
 
 #endif
