@@ -8,7 +8,7 @@ class LedFont {
 public:
     LedFont()
     {
-        std::string valid = " -/.,:!0123456789abcdefghijklmnopqrstuvxyzæøåABCDEFGHIJKLMNOPQRSTUVXYZÆØÅ";
+        std::string valid = " -/.,:!()0123456789abcdefghijklmnopqrstuvxyzæøåABCDEFGHIJKLMNOPQRSTUVXYZÆØÅ";
         for (size_t i = 0; i < valid.size(); ++i) {
             std::string c = valid.substr(i, 1);
             if ((unsigned char)c[0] < 128) {

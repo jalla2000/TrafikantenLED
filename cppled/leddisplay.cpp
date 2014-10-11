@@ -1,10 +1,13 @@
 #include "leddisplay.hpp"
 #include "ledfont.hpp"
+#include <functional>
 #include <cstring>
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 LedDisplay::LedDisplay(const std::string & device,
                        size_t lines,
@@ -78,7 +81,9 @@ void LedDisplay::flush(int line)
     }
 }
 
-void LedDisplay::writeTxt(const std::string & text, Color color)
+void foreachUtfCharacter(
+    const std::string & text,
+    boost::function<bool (const std::string &)> func)
 {
     for (size_t i = 0; i < text.size(); ++i) {
         unsigned bytes = 1;
@@ -86,17 +91,62 @@ void LedDisplay::writeTxt(const std::string & text, Color color)
             // multibyte character (limited support)
             bytes = 2;
         }
-        if (!font_->chars_.count(text.substr(i, bytes))) {
-            std::cout << "Failed to lookup letter='" << text.substr(i, bytes) << "'" << std::endl;
-            assert(false && "Missing font");
-        }
-        const FontLetter & letter = font_->chars_[text.substr(i, bytes)];
-        drawSprite(letter, color);
-        currentX_ += letter.spriteWidth_ + 1;
+        if (!func(text.substr(i, bytes)))
+            return;
         if (bytes > 1) {
             ++i;
         }
     }
+}
+
+bool LedDisplay::count(const std::string & character)
+{
+    if (!font_->chars_.count(character)) {
+        std::cout << "Failed to lookup letter='" << character << "'" << std::endl;
+        assert(false && "Missing font");
+    }
+    widthCounter_ += font_->chars_.at(character).spriteWidth_;
+    return true;
+}
+
+// struct WidthCounter {
+    
+// };
+
+size_t LedDisplay::widthOfTxt(const std::string & text)
+{
+    widthCounter_ = 0;
+    boost::function<bool (const std::string &)> fun =
+        boost::bind(&LedDisplay::count, this, _1);
+    foreachUtfCharacter(text, fun);
+    return widthCounter_;
+}
+
+bool LedDisplay::writeCharacter(const std::string & character,
+                                Color color)
+{
+    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= DISPLAY_HEIGHT) {
+        return false;
+    }
+    if (!font_->chars_.count(character)) {
+        std::cout << "Failed to lookup letter='" << character << "'" << std::endl;
+        assert(false && "Missing font");
+    }
+    const FontLetter & letter = font_->chars_[character];
+    drawSprite(letter, color);
+    currentX_ += letter.spriteWidth_ + 1;
+    return true;
+}
+
+void LedDisplay::writeTxt(const std::string & text, Color color)
+{
+    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= DISPLAY_HEIGHT) {
+        return;
+    }
+    boost::function<bool (const std::string &)> characterWriter =
+        boost::bind(&LedDisplay::writeCharacter, this, _1, color);
+    foreachUtfCharacter(text, characterWriter);
+    return;
 }
 
 void LedDisplay::drawSprite(const Sprite & sprite, Color color)

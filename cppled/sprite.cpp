@@ -5,7 +5,7 @@
 Sprite::Sprite()
     : dataWidth_(0)
     , dataHeight_(0)
-    , spriteWidth_(7)
+    , spriteWidth_(0)
     , data_()
 { }
 
