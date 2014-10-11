@@ -188,7 +188,21 @@ int main()
         }
         else {
             std::cout << "Postponing refresh." << std::endl;
-            for (int scroll = 128; scroll > -300; --scroll) {
+            std::stringstream scrollText;
+            size_t sideScrollCount = departures.size();
+            if (sideScrollCount > 9)
+                sideScrollCount = 9;
+            for (size_t j = 3; j < sideScrollCount; ++j)
+            {
+                const Departure & dep = departures[j];
+                scrollText << dep.lineNo_ << " "
+                           << dep.destinationDisplay_ << " "
+                           << (dep.etaSeconds_/60) << "min  ";
+            }
+            for (int scroll = 128;
+                 scroll > -(int)display.widthOfTxt(scrollText.str());
+                 --scroll)
+            {
                 display.flush(-1);
                 for (size_t j = 0; j < 3; ++j)
                 {
@@ -208,18 +222,9 @@ int main()
                     display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
                 }
                 display.currentX_ = scroll;
-                std::stringstream scrollText;
-                for (size_t j = 3; j < departures.size(); ++j)
-                {
-                    const Departure & dep = departures[j];
-                    scrollText << dep.lineNo_ << " "
-                               << dep.destinationDisplay_ << " "
-                               << (dep.etaSeconds_/60) << "min  ";
-                    display.currentY_ = LedDisplay::DISPLAY_HEIGHT-LedDisplay::PIXELS_PER_TEXTLINE;
-                }
+                display.currentY_ = LedDisplay::DISPLAY_HEIGHT-LedDisplay::PIXELS_PER_TEXTLINE;
                 display.writeTxt(scrollText.str(), LedDisplay::ORANGE);
                 display.send();
-                usleep(1000*15);
             }
         }
     }
