@@ -159,8 +159,19 @@ int main()
         if ((now - timeOfLastFetch) > 30)
         {
             std::cout << "Data is >30 old. Fetching." << std::endl;
-            timeOfLastFetch = now;
             departures = fetchDepartures();
+            if (departures.empty()) {
+                display.flush(-1);
+                display.currentY_ = 0;
+                display.currentX_ = 0;
+                display.writeTxt("Se tidtabell...", LedDisplay::RED);
+                display.send();
+                sleep(5);
+                continue;
+            }
+            else {
+                timeOfLastFetch = now;
+            }
             smartFilter(departures);
             for (int i = 32; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
             {
@@ -173,14 +184,20 @@ int main()
                     display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
                     display.currentX_ += 2;
                     display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-                    std::stringstream ss;
-                    ss << dep.etaSeconds_ / 60;
-                    switch (ss.str().size()) {
-                    case 1: display.currentX_ = 106; break;
-                    case 2: display.currentX_ = 99; break;
-                    case 3: display.currentX_ = 92; break;
+                    if (dep.etaSeconds_ < 60) {
+                        display.currentX_ = 117;
+                        display.writeTxt("nå", LedDisplay::RED);
                     }
-                    display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+                    else {
+                        std::stringstream ss;
+                        ss << dep.etaSeconds_ / 60;
+                        switch (ss.str().size()) {
+                        case 1: display.currentX_ = 106; break;
+                        case 2: display.currentX_ = 99; break;
+                        case 3: display.currentX_ = 92; break;
+                        }
+                        display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+                    }
                 }
                 display.send();
                 usleep(1000*30);
@@ -199,8 +216,9 @@ int main()
                            << dep.destinationDisplay_ << " "
                            << (dep.etaSeconds_/60) << "min  ";
             }
+            std::cout << "Horizontal scrolling: \"" << scrollText.str() << "\"" << std::endl;
             for (int scroll = 128;
-                 scroll > -(int)display.widthOfTxt(scrollText.str());
+                 scroll > -((int)display.widthOfTxt(scrollText.str())+128);
                  --scroll)
             {
                 display.flush(-1);
@@ -212,14 +230,20 @@ int main()
                     display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
                     display.currentX_ += 2;
                     display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-                    std::stringstream ss;
-                    ss << dep.etaSeconds_ / 60;
-                    switch (ss.str().size()) {
-                    case 1: display.currentX_ = 106; break;
-                    case 2: display.currentX_ = 99; break;
-                    case 3: display.currentX_ = 92; break;
+                    if (dep.etaSeconds_ < 60) {
+                        display.currentX_ = 117;
+                        display.writeTxt("nå", LedDisplay::RED);
                     }
-                    display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+                    else {
+                        std::stringstream ss;
+                        ss << dep.etaSeconds_ / 60;
+                        switch (ss.str().size()) {
+                        case 1: display.currentX_ = 106; break;
+                        case 2: display.currentX_ = 99; break;
+                        case 3: display.currentX_ = 92; break;
+                        }
+                        display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+                    }
                 }
                 display.currentX_ = scroll;
                 display.currentY_ = LedDisplay::DISPLAY_HEIGHT-LedDisplay::PIXELS_PER_TEXTLINE;
