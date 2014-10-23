@@ -1,0 +1,11 @@
+1. Set up automatic wi-fi connection on boot
+
+2. Log in on raspberry and run:
+sudo aptitude update
+sudo aptitude upgrade
+sudo aptitude install git screen libboost-dev libjsoncpp-dev libcurl-dev (libcurl4-openssl-dev)
+git clone https://github.com/jalla2000/TrafikantenLED.git
+cd TrafikantenLED/cppled
+./compile.sh
+
+3. Add run command in /etc/rc.local (see bootscript)

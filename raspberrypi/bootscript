@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+# This should be in /etc/rc.local
+
+su - pi -c "screen -dm -S /home/pi/TrafikantenLED/cppled/a.out"
+
