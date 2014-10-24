@@ -135,7 +135,7 @@ int main()
     std::cout << "time=" << t << std::endl;
     //return 0;
     LedFont busFont;
-    LedDisplay display("/dev/ttyUSB0", 4, &busFont);
+    LedDisplay display("/dev/ttyUSB0", 16, &busFont);
     std::string error;
     display.open(error);
     if (!error.empty()) {
@@ -173,7 +173,7 @@ int main()
                 timeOfLastFetch = now;
             }
             smartFilter(departures);
-            for (int i = 32; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
+            for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
             {
                 display.flush(-1);
                 for (size_t j = 0; j < departures.size(); ++j)
@@ -209,7 +209,8 @@ int main()
             size_t sideScrollCount = departures.size();
             if (sideScrollCount > 9)
                 sideScrollCount = 9;
-            for (size_t j = 3; j < sideScrollCount; ++j)
+            const size_t busScrollIndex = (display.displayHeight_/LedDisplay::PIXELS_PER_TEXTLINE)-1;
+            for (size_t j = busScrollIndex; j < sideScrollCount; ++j)
             {
                 const Departure & dep = departures[j];
                 scrollText << dep.lineNo_ << " "
@@ -246,7 +247,7 @@ int main()
                     }
                 }
                 display.currentX_ = scroll;
-                display.currentY_ = LedDisplay::DISPLAY_HEIGHT-LedDisplay::PIXELS_PER_TEXTLINE;
+                display.currentY_ = display.displayHeight_-LedDisplay::PIXELS_PER_TEXTLINE;
                 display.writeTxt(scrollText.str(), LedDisplay::ORANGE);
                 display.send();
             }

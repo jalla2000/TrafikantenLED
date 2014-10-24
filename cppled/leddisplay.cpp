@@ -10,14 +10,14 @@
 #include <boost/function.hpp>
 
 LedDisplay::LedDisplay(const std::string & device,
-                       size_t lines,
+                       size_t displayHeight,
                        LedFont * font)
-    : gfxBuffer_(1024)
+    : gfxBuffer_(BYTES_PER_LINE*displayHeight)
     , currentX_(0)
     , currentY_(0)
+    , displayHeight_(displayHeight)
     , devicePath_(device)
     , deviceFileHandle_(-9)
-    , lines_(lines)
     , font_(font)
 {
 }
@@ -53,7 +53,8 @@ bool LedDisplay::open(std::string & error)
 void LedDisplay::setByte(size_t row, size_t col, unsigned char data)
 {
     assert(row*col < gfxBuffer_.size());
-    gfxBuffer_[row*col] = data;
+    assert(false && "Not properly implemented");
+    gfxBuffer_[row*col] = data; // TODO: this is wrong
 }
 
 void LedDisplay::setPixel(size_t xpos, size_t ypos, Color color)
@@ -75,9 +76,9 @@ void LedDisplay::flush(int line)
         memset(&gfxBuffer_[0], 0, gfxBuffer_.size());
     }
     else {
-        assert(line < lines_);
-        const size_t bytesPerLine = 32*8;
-        memset(&gfxBuffer_[line*bytesPerLine], 0, bytesPerLine);
+        assert(line < (displayHeight_/PIXELS_PER_TEXTLINE));
+        assert(false && "Not implemented correctly");
+        memset(&gfxBuffer_[line*BYTES_PER_LINE], 0, BYTES_PER_LINE); // TODO: this is WRONG
     }
 }
 
@@ -123,7 +124,7 @@ size_t LedDisplay::widthOfTxt(const std::string & text)
 bool LedDisplay::writeCharacter(const std::string & character,
                                 Color color)
 {
-    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= DISPLAY_HEIGHT) {
+    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
         return false;
     }
     if (!font_->chars_.count(character)) {
@@ -138,7 +139,7 @@ bool LedDisplay::writeCharacter(const std::string & character,
 
 void LedDisplay::writeTxt(const std::string & text, Color color)
 {
-    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= DISPLAY_HEIGHT) {
+    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
         return;
     }
     boost::function<bool (const std::string &)> characterWriter =
@@ -159,10 +160,10 @@ void LedDisplay::drawSprite(const Sprite & sprite, Color color)
     {
         const int dstCol = (currentX_ / 4) + (i % sprite.dataWidth_);
         const int dstRow = currentY_ + (i / sprite.dataWidth_);
-        if (dstRow > DISPLAY_HEIGHT)
+        if (dstRow > displayHeight_)
             break;
         const unsigned fraction = (currentX_ % 4)*BITS_PER_PIXEL;
-        if (dstRow >= 0 && dstRow < DISPLAY_HEIGHT) {
+        if (dstRow >= 0 && dstRow < displayHeight_) {
             if (fraction) {
                 if (dstCol >= 0 && dstCol < BYTES_PER_LINE) {
                     gfxBuffer_[dstCol+(dstRow*BYTES_PER_LINE)] |= (sprite.data_[i] & colorfilter) >> fraction;

@@ -17,7 +17,6 @@ public:
     static const int PIXELS_PER_TEXTLINE = 8;
     static const int BYTES_PER_LINE = 32;
     static const int BITS_PER_PIXEL = 2;
-    static const int DISPLAY_HEIGHT = 32;
     static const int DISPLAY_WIDTH = 128;
 
     LedDisplay(const std::string & device,
@@ -37,11 +36,11 @@ public:
     std::vector<unsigned char> gfxBuffer_;
     int currentX_;
     int currentY_;
+    const int displayHeight_;
 
 private:
     const std::string devicePath_;
     int deviceFileHandle_;
-    int lines_;
     LedFont * font_;
 };
 
