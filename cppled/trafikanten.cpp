@@ -135,7 +135,7 @@ int main()
     std::cout << "time=" << t << std::endl;
     //return 0;
     LedFont busFont;
-    LedDisplay display("/dev/ttyUSB0", 16, &busFont);
+    LedDisplay display("/dev/ttyUSB0", 32, &busFont);
     std::string error;
     display.open(error);
     if (!error.empty()) {
