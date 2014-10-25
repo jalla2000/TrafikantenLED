@@ -213,9 +213,12 @@ int main()
             for (size_t j = busScrollIndex; j < sideScrollCount; ++j)
             {
                 const Departure & dep = departures[j];
+                if (j != busScrollIndex) {
+                    scrollText << "  ";
+                }
                 scrollText << dep.lineNo_ << " "
                            << dep.destinationDisplay_ << " "
-                           << (dep.etaSeconds_/60) << "min  ";
+                           << (dep.etaSeconds_/60) << "min";
             }
             std::cout << "Horizontal scrolling: \"" << scrollText.str() << "\"" << std::endl;
             for (int scroll = 128;
