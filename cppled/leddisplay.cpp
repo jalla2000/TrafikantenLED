@@ -158,11 +158,16 @@ void LedDisplay::drawSprite(const Sprite & sprite, Color color)
 
     for (size_t i = 0; i < sprite.data_.size(); ++i)
     {
-        const int dstCol = (currentX_ / 4) + (i % sprite.dataWidth_);
+        int base = currentX_;
+        if (currentX_ < 0)
+            base -= 3;
+        const int dstCol = (base / 4) + (i % sprite.dataWidth_);
         const int dstRow = currentY_ + (i / sprite.dataWidth_);
         if (dstRow > displayHeight_)
             break;
-        const unsigned fraction = (currentX_ % 4)*BITS_PER_PIXEL;
+        int fraction = (currentX_ % 4) *BITS_PER_PIXEL;
+        if (fraction < 0)
+            fraction += 8;
         if (dstRow >= 0 && dstRow < displayHeight_) {
             if (fraction) {
                 if (dstCol >= 0 && dstCol < BYTES_PER_LINE) {
