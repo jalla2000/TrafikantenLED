@@ -128,6 +128,34 @@ void smartFilter(std::vector<Departure> & deps)
     }
 }
 
+void drawBusList(LedDisplay & display,
+                 const std::vector<Departure> & deps)
+{
+    for (size_t j = 0; j < deps.size(); ++j)
+    {
+        const Departure & dep = deps[j];
+        display.currentX_ = 0;
+        display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
+        display.currentX_ += 2;
+        display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
+        if (dep.etaSeconds_ < 60) {
+            display.currentX_ = 117;
+            display.writeTxt("nå", LedDisplay::RED);
+        }
+        else {
+            std::stringstream ss;
+            ss << dep.etaSeconds_ / 60;
+            switch (ss.str().size()) {
+            case 1: display.currentX_ = 106; break;
+            case 2: display.currentX_ = 99; break;
+            case 3: display.currentX_ = 92; break;
+            }
+            display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+        }
+        display.currentY_ += 8;
+    }
+}
+
 int main()
 {
     std::string testTime = "/Date(1412619557000+0200)/";
@@ -142,15 +170,6 @@ int main()
         std::cout << "ERROR: Failed to open tty device" << std::endl;
         return 1;
     }
-    // for (int i = 0; i < 40; ++i) {
-    //     //const Departure & dep = departures[0];
-    //     display.flush(-1);
-    //     display.currentX_ = 0;
-    //     display.currentY_ = 0;
-    //     display.writeTxt("Bygdøy", LedDisplay::RED);
-    //     display.send();
-    // }
-    // return 0;
     int timeOfLastFetch = 0;
     std::vector<Departure> departures;
     while (true) {
@@ -173,32 +192,12 @@ int main()
                 timeOfLastFetch = now;
             }
             smartFilter(departures);
+            display.currentX_ = 0;
             for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
             {
                 display.flush(-1);
-                for (size_t j = 0; j < departures.size(); ++j)
-                {
-                    const Departure & dep = departures[j];
-                    display.currentX_ = 0;
-                    display.currentY_ = i+(j*8);
-                    display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
-                    display.currentX_ += 2;
-                    display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-                    if (dep.etaSeconds_ < 60) {
-                        display.currentX_ = 117;
-                        display.writeTxt("nå", LedDisplay::RED);
-                    }
-                    else {
-                        std::stringstream ss;
-                        ss << dep.etaSeconds_ / 60;
-                        switch (ss.str().size()) {
-                        case 1: display.currentX_ = 106; break;
-                        case 2: display.currentX_ = 99; break;
-                        case 3: display.currentX_ = 92; break;
-                        }
-                        display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
-                    }
-                }
+                display.currentY_ = i;
+                drawBusList(display, departures);
                 display.send();
                 usleep(1000*30);
             }
@@ -226,29 +225,8 @@ int main()
                  --scroll)
             {
                 display.flush(-1);
-                for (size_t j = 0; j < 3; ++j)
-                {
-                    const Departure & dep = departures[j];
-                    display.currentX_ = 0;
-                    display.currentY_ = j*8;
-                    display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
-                    display.currentX_ += 2;
-                    display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-                    if (dep.etaSeconds_ < 60) {
-                        display.currentX_ = 117;
-                        display.writeTxt("nå", LedDisplay::RED);
-                    }
-                    else {
-                        std::stringstream ss;
-                        ss << dep.etaSeconds_ / 60;
-                        switch (ss.str().size()) {
-                        case 1: display.currentX_ = 106; break;
-                        case 2: display.currentX_ = 99; break;
-                        case 3: display.currentX_ = 92; break;
-                        }
-                        display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
-                    }
-                }
+                std::vector<Departure> subVec(departures.begin(), departures.begin()+3);
+                drawBusList(display, subVec);
                 display.currentX_ = scroll;
                 display.currentY_ = display.displayHeight_-LedDisplay::PIXELS_PER_TEXTLINE;
                 display.writeTxt(scrollText.str(), LedDisplay::ORANGE);
