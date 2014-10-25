@@ -16,6 +16,7 @@ LedDisplay::LedDisplay(const std::string & device,
     , currentX_(0)
     , currentY_(0)
     , displayHeight_(displayHeight)
+    , textLines_(displayHeight/PIXELS_PER_TEXTLINE)
     , devicePath_(device)
     , deviceFileHandle_(-9)
     , font_(font)

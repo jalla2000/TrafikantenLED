@@ -129,9 +129,12 @@ void smartFilter(std::vector<Departure> & deps)
 }
 
 void drawBusList(LedDisplay & display,
-                 const std::vector<Departure> & deps)
+                 const std::vector<Departure> & deps,
+                 size_t count)
 {
-    for (size_t j = 0; j < deps.size(); ++j)
+    if (count > deps.size())
+        count = deps.size();
+    for (size_t j = 0; j < count; ++j)
     {
         const Departure & dep = deps[j];
         display.currentX_ = 0;
@@ -197,18 +200,21 @@ int main()
             {
                 display.flush(-1);
                 display.currentY_ = i;
-                drawBusList(display, departures);
+                drawBusList(display, departures, departures.size());
                 display.send();
-                usleep(1000*30);
+                if (i % 16 == 0) {
+                    usleep(1000*1000);
+                }
+                usleep(1000*20);
             }
         }
         else {
             std::cout << "Postponing refresh." << std::endl;
-            std::stringstream scrollText;
             size_t sideScrollCount = departures.size();
             if (sideScrollCount > 9)
                 sideScrollCount = 9;
-            const size_t busScrollIndex = (display.displayHeight_/LedDisplay::PIXELS_PER_TEXTLINE)-1;
+            std::stringstream scrollText;
+            const size_t busScrollIndex = display.textLines_-1;
             for (size_t j = busScrollIndex; j < sideScrollCount; ++j)
             {
                 const Departure & dep = departures[j];
@@ -220,13 +226,13 @@ int main()
                            << (dep.etaSeconds_/60) << "min";
             }
             std::cout << "Horizontal scrolling: \"" << scrollText.str() << "\"" << std::endl;
-            for (int scroll = 128;
-                 scroll > -((int)display.widthOfTxt(scrollText.str())+128);
+            for (int scroll = LedDisplay::DISPLAY_WIDTH;
+                 scroll > -((int)display.widthOfTxt(scrollText.str())+LedDisplay::DISPLAY_WIDTH);
                  --scroll)
             {
                 display.flush(-1);
-                std::vector<Departure> subVec(departures.begin(), departures.begin()+3);
-                drawBusList(display, subVec);
+                display.currentY_ = 0;
+                drawBusList(display, departures, display.textLines_-1);
                 display.currentX_ = scroll;
                 display.currentY_ = display.displayHeight_-LedDisplay::PIXELS_PER_TEXTLINE;
                 display.writeTxt(scrollText.str(), LedDisplay::ORANGE);

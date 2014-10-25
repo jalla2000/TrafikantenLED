@@ -37,6 +37,7 @@ public:
     int currentX_;
     int currentY_;
     const int displayHeight_;
+    const int textLines_;
 
 private:
     const std::string devicePath_;
