@@ -159,6 +159,22 @@ void drawBusList(LedDisplay & display,
     }
 }
 
+std::string getAlbertText()
+{
+    time_t rawtime;
+    time(&rawtime);
+    int now = rawtime;
+    int age = now - 1393336800;
+    int days = age/(60*60*24)-2;
+    int months = days / 30;
+    int restDays = days % 30;
+
+    std::stringstream ss;
+    ss << "Albert is " << months << " months and "
+       << restDays << " days old";
+    return ss.str();
+}
+
 int main()
 {
     std::string testTime = "/Date(1412619557000+0200)/";
@@ -225,6 +241,7 @@ int main()
                            << dep.destinationDisplay_ << " "
                            << (dep.etaSeconds_/60) << "min";
             }
+            scrollText << "  " << getAlbertText();
             std::cout << "Horizontal scrolling: \"" << scrollText.str() << "\"" << std::endl;
             for (int scroll = LedDisplay::DISPLAY_WIDTH;
                  scroll > -((int)display.widthOfTxt(scrollText.str())+LedDisplay::DISPLAY_WIDTH);
