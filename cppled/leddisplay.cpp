@@ -45,7 +45,8 @@ bool LedDisplay::open(std::string & error)
     options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     options.c_cflag = 0;
     options.c_cflag &= ~(CSIZE | PARENB);
-    options.c_cflag |= CS8 | B460800;
+    //options.c_cflag |= CS8 | B460800;
+    options.c_cflag |= CS8 | B115200;
     tcflush(deviceFileHandle_, TCIFLUSH);
     tcsetattr(deviceFileHandle_, TCSANOW, &options);
     return true;

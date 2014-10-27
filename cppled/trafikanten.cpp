@@ -46,6 +46,9 @@ public:
         destinationDisplay_ = destinationDisplay_.substr(
             0,
             destinationDisplay_.find(" via"));
+        destinationDisplay_ = destinationDisplay_.substr(
+            0,
+            destinationDisplay_.find("bussterminal")+8);
         if (destinationDisplay_.find("(N63") != std::string::npos) {
             destinationDisplay_ = destinationDisplay_.substr(
                 0,
@@ -81,7 +84,7 @@ int parseTime(std::string t)
 
 std::vector<Departure> fetchDepartures()
 {
-    std::string stopId = "3010531";
+    std::string stopId = "2190040";
     std::string url = "http://reis.trafikanten.no/reisrest/realtime/getalldepartures/" + stopId;
     std::cout << "Performing HTTP request...";
     std::string content = httpRequest(url);
@@ -182,7 +185,7 @@ int main()
     std::cout << "time=" << t << std::endl;
     //return 0;
     LedFont busFont;
-    LedDisplay display("/dev/ttyUSB0", 32, &busFont);
+    LedDisplay display("/dev/ttyUSB0", 16, &busFont);
     std::string error;
     display.open(error);
     if (!error.empty()) {
@@ -211,6 +214,7 @@ int main()
                 timeOfLastFetch = now;
             }
             smartFilter(departures);
+        }
             display.currentX_ = 0;
             for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
             {
@@ -223,39 +227,6 @@ int main()
                 }
                 usleep(1000*20);
             }
-        }
-        else {
-            std::cout << "Postponing refresh." << std::endl;
-            size_t sideScrollCount = departures.size();
-            if (sideScrollCount > 9)
-                sideScrollCount = 9;
-            std::stringstream scrollText;
-            const size_t busScrollIndex = display.textLines_-1;
-            for (size_t j = busScrollIndex; j < sideScrollCount; ++j)
-            {
-                const Departure & dep = departures[j];
-                if (j != busScrollIndex) {
-                    scrollText << "  ";
-                }
-                scrollText << dep.lineNo_ << " "
-                           << dep.destinationDisplay_ << " "
-                           << (dep.etaSeconds_/60) << "min";
-            }
-            scrollText << "  " << getAlbertText();
-            std::cout << "Horizontal scrolling: \"" << scrollText.str() << "\"" << std::endl;
-            for (int scroll = LedDisplay::DISPLAY_WIDTH;
-                 scroll > -((int)display.widthOfTxt(scrollText.str())+LedDisplay::DISPLAY_WIDTH);
-                 --scroll)
-            {
-                display.flush(-1);
-                display.currentY_ = 0;
-                drawBusList(display, departures, display.textLines_-1);
-                display.currentX_ = scroll;
-                display.currentY_ = display.displayHeight_-LedDisplay::PIXELS_PER_TEXTLINE;
-                display.writeTxt(scrollText.str(), LedDisplay::ORANGE);
-                display.send();
-            }
-        }
     }
     return 0;
 }
