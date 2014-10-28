@@ -46,9 +46,11 @@ public:
         destinationDisplay_ = destinationDisplay_.substr(
             0,
             destinationDisplay_.find(" via"));
-        destinationDisplay_ = destinationDisplay_.substr(
-            0,
-            destinationDisplay_.find("bussterminal")+8);
+        if (destinationDisplay_.find("bussterminal") != std::string::npos) {
+            destinationDisplay_ = destinationDisplay_.substr(
+                0,
+                destinationDisplay_.find("bussterminal")+8);
+        }
         if (destinationDisplay_.find("(N63") != std::string::npos) {
             destinationDisplay_ = destinationDisplay_.substr(
                 0,
