@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <ncurses.h>
 
 LedDisplay::LedDisplay(const std::string & device,
                        size_t displayHeight,
@@ -32,6 +33,13 @@ LedDisplay::~LedDisplay()
 
 bool LedDisplay::open(std::string & error)
 {
+    if (devicePath_.empty()) {
+        return false;
+    }
+    else if (devicePath_ == "ncurses") {
+        initscr(); // ncurses
+        return true;
+    }
     deviceFileHandle_ = ::open(devicePath_.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (deviceFileHandle_ == -1) {
         error = "Failed to open serial port. Aborting...";
@@ -194,6 +202,24 @@ void LedDisplay::drawSprite(const Sprite & sprite, Color color)
 
 void LedDisplay::send()
 {
+    if (devicePath_.empty()) {
+        return;
+    }
+    /* ncurses begin */
+    if (devicePath_ == "ncurses") {
+        for (size_t i = 0; i < gfxBuffer_.size(); ++i) {
+            const int row = i / BYTES_PER_LINE;
+            for (size_t pixel = 0; pixel < 4; ++pixel) { // [0,3]
+                const int col = (i % BYTES_PER_LINE)*4 + pixel;
+                const bool set = gfxBuffer_[i] & (3 << (6-(pixel*2)));
+                char block = (set ? 219 : ' ');
+                mvaddch(row, col, block);
+            }
+        }
+        refresh();
+        return;
+        /* ncurses end */
+    }
     static const unsigned char sync = '0';
     int sent = write(deviceFileHandle_, &sync, sizeof sync);
     if (sent == -1)
