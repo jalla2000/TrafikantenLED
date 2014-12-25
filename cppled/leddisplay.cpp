@@ -18,14 +18,16 @@ LedDisplay::LedDisplay(const std::string & device,
     , displayHeight_(displayHeight)
     , textLines_(displayHeight/PIXELS_PER_TEXTLINE)
     , devicePath_(device)
-    , deviceFileHandle_(-9)
+    , deviceFileHandle_(-1)
     , font_(font)
 {
 }
 
 LedDisplay::~LedDisplay()
 {
-    ::close(deviceFileHandle_);
+    if (deviceFileHandle_ >= 0) {
+        ::close(deviceFileHandle_);
+    }
 }
 
 bool LedDisplay::open(std::string & error)
