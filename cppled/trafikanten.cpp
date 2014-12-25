@@ -125,7 +125,7 @@ std::vector<Departure> fetchDepartures()
 
 void smartFilter(std::vector<Departure> & deps)
 {
-    for (size_t i = 0; deps.size(); ++i) {
+    for (size_t i = 0; i < deps.size(); ++i) {
         if (i > 15 && deps[i].etaSeconds_ >= 60*30) {
             deps.resize(i-1);
             return;
