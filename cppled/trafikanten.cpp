@@ -51,6 +51,11 @@ public:
                 0,
                 destinationDisplay_.find("bussterminal")+8);
         }
+        if (destinationDisplay_.find("Bussterminal") != std::string::npos) {
+            destinationDisplay_ = destinationDisplay_.substr(
+                0,
+                destinationDisplay_.find("Bussterminal")+8);
+        }
         if (destinationDisplay_.find("(N63") != std::string::npos) {
             destinationDisplay_ = destinationDisplay_.substr(
                 0,
@@ -84,9 +89,8 @@ int parseTime(std::string t)
     return ret;
 }
 
-std::vector<Departure> fetchDepartures()
+std::vector<Departure> fetchDeparture(const std::string & stopId)
 {
-    std::string stopId = "2190040";
     std::string url = "http://reis.trafikanten.no/reisrest/realtime/getalldepartures/" + stopId;
     std::cout << "Performing HTTP request...";
     std::string content = httpRequest(url);
@@ -103,6 +107,8 @@ std::vector<Departure> fetchDepartures()
         //tm * ptm = gmtime(&rawtime);
         int now = rawtime;
         for (size_t i = 0; i < parsed.size(); ++i) {
+            // HACK: For forgotten reasons:
+            if (parsed[(int)i]["DestinationDisplay"].asString().find("Oslo") != std::string::npos) {
             departures.push_back(Departure());
             Departure & dep = departures.back();
             dep.lineNo_ = parsed[(int)i]["PublishedLineName"].asString();
@@ -114,6 +120,7 @@ std::vector<Departure> fetchDepartures()
             dep.inCongestion_ = parsed[(int)i]["InCongestion"].asBool();
             //std::cout << dep.str() << std::endl;
             dep.compressName();
+            }
         }
     }
     else {
@@ -121,6 +128,27 @@ std::vector<Departure> fetchDepartures()
     }
     return departures;
     //std::cout << "BusName=" << parser.getString("BusName") << std::endl;
+}
+
+bool timeComparator(const Departure & dep1, const Departure & dep2)
+{
+    return dep1.etaSeconds_ < dep2.etaSeconds_;
+}
+
+std::vector<Departure> fetchDepartures()
+{
+    std::vector<Departure> res;
+    std::vector<Departure> oksenoyveien = fetchDeparture("2190040");
+    std::vector<Departure> tjernsmyr = fetchDeparture("2190105");
+    std::vector<Departure> stabekkbakken = fetchDeparture("2190106");
+    std::cout << "Fetched " << oksenoyveien.size() << " deps for oksenoyveien" << std::endl;
+    std::cout << "Fetched " << tjernsmyr.size() << " deps for tjernsmyr" << std::endl;
+    std::cout << "Fetched " << stabekkbakken.size() << " deps for stabekkbakken" << std::endl;
+    res.insert(res.end(), oksenoyveien.begin(), oksenoyveien.end());
+    res.insert(res.end(), tjernsmyr.begin(), tjernsmyr.end());
+    res.insert(res.end(), stabekkbakken.begin(), stabekkbakken.end());
+    std::sort(res.begin(), res.end(), timeComparator);
+    return res;
 }
 
 void smartFilter(std::vector<Departure> & deps)
