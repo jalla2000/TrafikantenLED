@@ -219,7 +219,7 @@ int main()
     std::string error;
     display.open(error);
     if (!error.empty()) {
-        std::cout << "ERROR: Failed to open tty device" << std::endl;
+        std::cout << "ERROR: Failed to open display device: " << error << std::endl;
         return 1;
     }
     int timeOfLastFetch = 0;
