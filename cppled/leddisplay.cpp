@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <ncurses.h>
 
 LedDisplay::LedDisplay(const std::string & device,
@@ -96,7 +94,7 @@ void LedDisplay::flush(int line)
 
 void foreachUtfCharacter(
     const std::string & text,
-    boost::function<bool (const std::string &)> func)
+    std::function<bool (const std::string &)> func)
 {
     for (size_t i = 0; i < text.size(); ++i) {
         unsigned bytes = 1;
@@ -131,7 +129,7 @@ struct WidthCounter {
 size_t LedDisplay::widthOfTxt(const std::string & text)
 {
     WidthCounter cnt(*font_);
-    foreachUtfCharacter(text, boost::bind(&WidthCounter::sumWidth, &cnt, _1));
+    foreachUtfCharacter(text, std::bind(&WidthCounter::sumWidth, &cnt, std::placeholders::_1));
     return cnt.width_ + cnt.count_-1;
 }
 
@@ -156,8 +154,8 @@ void LedDisplay::writeTxt(const std::string & text, Color color)
     if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
         return;
     }
-    boost::function<bool (const std::string &)> characterWriter =
-        boost::bind(&LedDisplay::writeCharacter, this, _1, color);
+    std::function<bool (const std::string &)> characterWriter =
+        std::bind(&LedDisplay::writeCharacter, this, std::placeholders::_1, color);
     foreachUtfCharacter(text, characterWriter);
     return;
 }
