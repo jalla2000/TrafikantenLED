@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import urllib2
+import urllib3
 import time
 import json
 from ledfont import LedFont
@@ -59,7 +59,7 @@ while True:
         buses = []
 
         trafikantenUrl = 'http://api-test.trafikanten.no/RealTime/GetRealTimeData/' + '3010065' #brugata
-        response = urllib2.urlopen(trafikantenUrl)
+        response = urllib3.urlopen(trafikantenUrl)
         jsonstr = response.read()
         buses = json.loads(jsonstr)
 
@@ -87,7 +87,7 @@ while True:
 
 
     except IOError:
-        print "Failed to fetch data"
+        print("Failed to fetch data")
         display.flush()
         display.writeTxt("Offline...", xpos=0, ypos=0, color='red')
         display.send()

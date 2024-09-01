@@ -25,7 +25,7 @@ class LedDisplay():
         self.gfxBuffer[row][col] = data
 
     def setPixel(self, xpos, ypos, color='red'):
-        col = xpos / 4
+        col = int(xpos / 4)
         fraction = (xpos % 4)*2
         if color == 'red':
             fraction += 1
@@ -72,7 +72,7 @@ class LedDisplay():
         for letter in text:
             for row in range(0, len(self.font[letter])):
                 #print "Current x/y=%d/%d" % (self.currentX, self.currentY)
-                col = self.currentX / 4
+                col = int(self.currentX / 4)
                 fraction = self.currentX % 4
                 if (row+self.currentY >= 0 and row+self.currentY < self.lines*self.PIXELS_PER_LINE):
                     if (col >= 0 and col < 32):
@@ -96,7 +96,7 @@ class LedDisplay():
             # check row boundaries
             if (ypos+row >= 0 and ypos+row < self.lines*self.PIXELS_PER_LINE):
                 for col in range(0, len(sprite[0])):
-                    targetcol = xpos/4+col
+                    targetcol = int(xpos/4+col)
                     # check column boundaries
                     if targetcol >= 0 and targetcol < len(self.gfxBuffer[row+ypos]):
                         self.gfxBuffer[row+ypos][targetcol] |= (sprite[row][col] >> fraction) & colorfilter
@@ -109,13 +109,13 @@ class LedDisplay():
             dataChunk = '0'
             for row in self.gfxBuffer:
                 dataChunk += "".join([chr(entry) for entry in row])
-            self.connection.write(dataChunk)
+            self.connection.write(dataChunk.encode())
         elif line < self.lines:
             dataChunk = str(line+1)
             for i in range(self.PIXELS_PER_LINE*line, self.PIXELS_PER_LINE*(line+1)):
                 dataChunk += "".join([chr(entry) for entry in self.gfxBuffer[i]])
-            self.connection.write(dataChunk)
+            self.connection.write(dataChunk.encode())
 
     def __del__(self):
         self.connection.close()
-        print "Closing display connection"
+        print("Closing display connection")
