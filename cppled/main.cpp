@@ -12,17 +12,17 @@
 #include <ctime>
 #include <unistd.h>
 
-bool timeComparator(const Departure & dep1, const Departure & dep2)
+bool timeComparator(const std::shared_ptr<Departure>& dep1, const std::shared_ptr<Departure>& dep2)
 {
-    return dep1.etaSeconds_ < dep2.etaSeconds_;
+    return dep1->etaSeconds() < dep2->etaSeconds();
 }
 
-std::vector<Departure> fetchOsloDepartures()
+std::vector<std::shared_ptr<Departure>> fetchOsloDepartures()
 {
-    std::vector<Departure> res;
-    std::vector<Departure> oksenoyveien = Trafikanten::fetchDeparture("2190040");
-    std::vector<Departure> tjernsmyr = Trafikanten::fetchDeparture("2190105");
-    std::vector<Departure> stabekkbakken = Trafikanten::fetchDeparture("2190106");
+    std::vector<std::shared_ptr<Departure>> res;
+    std::vector<std::shared_ptr<Departure>> oksenoyveien = Trafikanten::fetchDeparture("2190040");
+    std::vector<std::shared_ptr<Departure>> tjernsmyr = Trafikanten::fetchDeparture("2190105");
+    std::vector<std::shared_ptr<Departure>> stabekkbakken = Trafikanten::fetchDeparture("2190106");
     std::cout << "Fetched " << oksenoyveien.size() << " deps for oksenoyveien" << std::endl;
     std::cout << "Fetched " << tjernsmyr.size() << " deps for tjernsmyr" << std::endl;
     std::cout << "Fetched " << stabekkbakken.size() << " deps for stabekkbakken" << std::endl;
@@ -33,35 +33,36 @@ std::vector<Departure> fetchOsloDepartures()
     return res;
 }
 
-std::vector<Departure> fetchAalesundDepartures()
+std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(bool testMode)
 {
-    std::vector<Departure> res;
-    std::vector<Departure> sjukehuslomma = Frammr::fetchDeparture();
+    std::vector<std::shared_ptr<Departure>> res;
+    std::vector<std::shared_ptr<Departure>> sjukehuslomma = Frammr::fetchDeparture(testMode);
     std::cout << "Fetched " << sjukehuslomma.size() << " deps for sjukehuslomma" << std::endl;
     res.insert(res.end(), sjukehuslomma.begin(), sjukehuslomma.end());
     std::sort(res.begin(), res.end(), timeComparator);
     return res;
 }
 
-void smartFilter(std::vector<Departure> & deps)
+template <typename T>
+void smartFilter(std::vector<std::shared_ptr<T>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
-        if (i > 15 && deps[i].etaSeconds_ >= 60*30) {
+        if (i > 15 && deps[i]->etaSeconds() >= 60*30) {
             deps.resize(i-1);
             return;
         }
     }
 }
 
-void drawBusList(LedDisplay & display,
-                 const std::vector<Departure> & deps,
+void drawBusList(LedDisplay& display,
+                 const std::vector<std::shared_ptr<Departure>>& deps,
                  size_t count)
 {
     if (count > deps.size())
         count = deps.size();
     for (size_t j = 0; j < count; ++j)
     {
-        const Departure & dep = deps[j];
+        const Departure& dep = *deps[j];
         display.currentX_ = 0;
         display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
         display.currentX_ += 2;
@@ -100,8 +101,15 @@ std::string getAlbertText()
     return ss.str();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc > 1) {
+      std::string argument = argv[1];
+      if (argument == "--test-http") {
+	fetchAalesundDepartures(true);
+	return 0;
+      }
+    }
     std::string testTime = "/Date(1412619557000+0200)/";
     int t = Trafikanten::Utils::parseTime(testTime);
     std::cout << "time=" << t << std::endl;
@@ -115,7 +123,7 @@ int main()
         return 1;
     }
     int timeOfLastFetch = 0;
-    std::vector<Departure> departures;
+    std::vector<std::shared_ptr<Departure>> departures;
     while (true) {
         time_t now;
         time(&now);
@@ -123,6 +131,7 @@ int main()
         {
             std::cout << "Data is >30 old. Fetching." << std::endl;
             departures = fetchOsloDepartures();
+
             if (departures.empty()) {
                 display.flush(-1);
                 display.currentY_ = 0;
