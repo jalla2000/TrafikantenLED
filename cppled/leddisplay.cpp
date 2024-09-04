@@ -10,7 +10,7 @@
 
 LedDisplay::LedDisplay(const std::string & device,
                        size_t displayHeight,
-                       LedFont * font)
+                       const LedFont& font)
     : gfxBuffer_(BYTES_PER_LINE*displayHeight)
     , currentX_(0)
     , currentY_(0)
@@ -33,8 +33,7 @@ bool LedDisplay::open(std::string & error)
 {
     if (devicePath_.empty()) {
         return false;
-    }
-    else if (devicePath_ == "ncurses") {
+    } else if (devicePath_ == DEVICE_NCURSES) {
         initscr(); // ncurses
         return true;
     }
@@ -128,7 +127,7 @@ struct WidthCounter {
 
 size_t LedDisplay::widthOfTxt(const std::string & text)
 {
-    WidthCounter cnt(*font_);
+    WidthCounter cnt(font_);
     foreachUtfCharacter(text, std::bind(&WidthCounter::sumWidth, &cnt, std::placeholders::_1));
     return cnt.width_ + cnt.count_-1;
 }
@@ -139,11 +138,11 @@ bool LedDisplay::writeCharacter(const std::string & character,
     if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
         return false;
     }
-    if (!font_->chars_.count(character)) {
+    if (!font_.chars_.count(character)) {
         std::cout << "Failed to lookup letter='" << character << "'" << std::endl;
         assert(false && "Missing font");
     }
-    const FontLetter & letter = font_->chars_[character];
+    const FontLetter& letter = font_.chars_.at(character);
     drawSprite(letter, color);
     currentX_ += letter.spriteWidth_ + 1;
     return true;
@@ -204,7 +203,7 @@ void LedDisplay::send()
         return;
     }
     /* ncurses begin */
-    if (devicePath_ == "ncurses") {
+    if (devicePath_ == DEVICE_NCURSES) {
         for (size_t i = 0; i < gfxBuffer_.size(); ++i) {
             const int row = i / BYTES_PER_LINE;
             for (size_t pixel = 0; pixel < 4; ++pixel) { // [0,3]

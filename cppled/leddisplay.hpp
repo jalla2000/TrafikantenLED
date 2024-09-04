@@ -1,5 +1,4 @@
-#ifndef LEDDISPLAY_HPP
-#define LEDDISPLAY_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -14,14 +13,16 @@ public:
         ORANGE,
         GREEN
     };
+    static constexpr auto DEVICE_NCURSES = "NCURSES";
+    static constexpr auto DEVICE_TEMINAL = "TERMINAL";
     static const int PIXELS_PER_TEXTLINE = 8;
     static const int BYTES_PER_LINE = 32;
     static const int BITS_PER_PIXEL = 2;
     static const int DISPLAY_WIDTH = 128;
 
-    LedDisplay(const std::string & device,
+    LedDisplay(const std::string& device,
                size_t lines,
-               LedFont * font);
+               const LedFont& font);
     ~LedDisplay();
     bool open(std::string & error);
     void setByte(size_t row, size_t col, unsigned char data);
@@ -42,7 +43,5 @@ public:
 private:
     const std::string devicePath_;
     int deviceFileHandle_;
-    LedFont * font_;
+    const LedFont& font_;
 };
-
-#endif

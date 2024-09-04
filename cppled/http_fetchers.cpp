@@ -174,6 +174,10 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
     const auto& jsonPageProps = jsonProps["pageProps"];
     const auto& jsonDepartures = jsonPageProps["departures"];
     const auto& jsonQuays = jsonDepartures["quays"];
+    time_t rawtime;
+    time(&rawtime);
+    // tm * ptm = gmtime(&rawtime);
+    const auto now = std::chrono::seconds(rawtime);
 
     for (const auto& quay : jsonQuays) {
         const std::string quayName = quay["name"].asString();
@@ -187,6 +191,7 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
             dep.aimedDepartureTime_ = 123;    // jsonDeparture["aimedDepartureTime"].asString();
             dep.expectedDepartureTimeString_ = jsonDeparture["expectedDepartureTime"].asString();
             dep.expectedDepartureTime_ = convertIso8601ToEpoch(dep.expectedDepartureTimeString_);
+            dep.etaSeconds_ = dep.expectedDepartureTime_ - now;
             // std::cout << "Parsed ISO time " << dep.expectedDepartureTimeString_ << " -> " << dep.expectedDepartureTime_.count() << std::endl;
             dep.cancelled_ = jsonDeparture["cancelled"].asBool();
             dep.realtime_ = jsonDeparture["realtime"].asBool();

@@ -104,14 +104,19 @@ std::string getAlbertText()
     return ss.str();
 }
 
+bool isSerial(const std::string& outputDevice)
+{
+    return !outputDevice.empty() && outputDevice != LedDisplay::DEVICE_NCURSES;
+}
+
 int main(int argc, char* argv[])
 {
     std::string inputFilePath;
-    bool ncursesMode = false;
+    std::string outputDevice;
     {
         CommandLine cmdParser("An application for displaying public transport realtime info");
         cmdParser.addArgument({"-i", "--inputFile"}, &inputFilePath, "Path to file with fake HTML data");
-        cmdParser.addArgument({"-n", "--ncursesMode"}, &ncursesMode, "Use ncurses as output display instead");
+        cmdParser.addArgument({"-o", "--output"}, &outputDevice, "Output device: ncurses, terminal or serial device");
         try {
             cmdParser.parse(argc, argv);
         } catch (std::runtime_error const& e) {
@@ -119,18 +124,20 @@ int main(int argc, char* argv[])
             return -1;
         }
     }
-    if (inputFilePath.length() > 0) {
-        Frammr::fetchDeparture(inputFilePath);
-        return 0;
-    }
     std::string testTime = "/Date(1412619557000+0200)/";
     int t = Trafikanten::Utils::parseTime(testTime);
     std::cout << "time=" << t << std::endl;
+    if (outputDevice == "ncurses") {
+        outputDevice = LedDisplay::DEVICE_NCURSES;
+    }
     LedFont busFont;
-    LedDisplay display("/dev/ttyUSB0", 16, &busFont);
+    LedDisplay display(
+        outputDevice,
+        32,
+        busFont);
     std::string error;
     display.open(error);
-    if (!error.empty()) {
+    if (isSerial(outputDevice) && !error.empty()) {
         std::cout << "ERROR: Failed to open display device: " << error << std::endl;
         return 1;
     }
@@ -141,9 +148,8 @@ int main(int argc, char* argv[])
         time(&now);
         if ((now - timeOfLastFetch) > 30)
         {
-            std::cout << "Data is >30 old. Fetching." << std::endl;
-            departures = fetchOsloDepartures();
-
+            std::cout << "Data is >30s old. Fetching." << std::endl;
+            departures = Frammr::fetchDeparture(inputFilePath);
             if (departures.empty()) {
                 display.flush(-1);
                 display.currentY_ = 0;
@@ -158,18 +164,18 @@ int main(int argc, char* argv[])
             }
             smartFilter(departures);
         }
-            display.currentX_ = 0;
-            for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
-            {
-                display.flush(-1);
-                display.currentY_ = i;
-                drawBusList(display, departures, departures.size());
-                display.send();
-                if (i % 16 == 0) {
-                    usleep(1000*1000);
-                }
-                usleep(1000*20);
+        display.currentX_ = 0;
+        for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
+        {
+            display.flush(-1);
+            display.currentY_ = i;
+            drawBusList(display, departures, departures.size());
+            display.send();
+            if (i % 16 == 0) {
+                usleep(1000*1000);
             }
+            usleep(1000*20);
+        }
     }
     return 0;
 }
