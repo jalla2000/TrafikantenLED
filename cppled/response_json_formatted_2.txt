@@ -1,0 +1,437 @@
+{
+    "props": {
+        "pageProps": {
+            "stopPlace": true,
+            "departures": {
+                "stopPlace": {
+                    "id": "NSR:StopPlace:40489",
+                    "name": "Sjukehuslomma",
+                    "description": null,
+                    "position": {
+                        "lat": 62.465809,
+                        "lon": 6.311687
+                    },
+                    "transportMode": [
+                        "bus"
+                    ],
+                    "transportSubmode": [
+                        "unknown"
+                    ]
+                },
+                "quays": [
+                    {
+                        "publicCode": "",
+                        "name": "Sjukehuslomma",
+                        "id": "NSR:Quay:69543",
+                        "description": null,
+                        "departures": [
+                            {
+                                "id": "MOR:ServiceJourney:1_261_9150000010330543",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T21:24:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T21:31:34+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:101_136_9150000024501119",
+                                "destinationDisplay": {
+                                    "frontText": "Ørsta-Volda",
+                                    "via": []
+                                },
+                                "publicCode": "101",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T21:37:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T21:37:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_263_9150000008448712",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T21:54:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T21:54:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_265_9150000010330625",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T22:24:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T22:24:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_267_9150000008448896",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T22:54:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T22:54:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:101_138_9150000024501402",
+                                "destinationDisplay": {
+                                    "frontText": "Ørsta-Volda",
+                                    "via": []
+                                },
+                                "publicCode": "101",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T23:12:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T23:12:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_269_9150000010330707",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T23:24:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T23:24:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_271_9150000008453431",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T23:54:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T23:54:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_273_9150000010330789",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-04T00:24:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T00:24:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_101_9150000008451249",
+                                "destinationDisplay": {
+                                    "frontText": "Moa",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-04",
+                                "aimedDepartureTime": "2024-09-04T05:59:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T05:59:00+02:00",
+                                "cancelled": false,
+                                "realtime": true,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            }
+                        ],
+                        "situations": []
+                    },
+                    {
+                        "publicCode": "",
+                        "name": "Sjukehuslomma",
+                        "id": "NSR:Quay:69544",
+                        "description": null,
+                        "departures": [
+                            {
+                                "id": "MOR:ServiceJourney:1_284_9150000008463386",
+                                "destinationDisplay": {
+                                    "frontText": "Sævollen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T21:04:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T21:04:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_286_9150000008467184",
+                                "destinationDisplay": {
+                                    "frontText": "Slinningen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T21:34:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T21:34:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_288_9150000008462566",
+                                "destinationDisplay": {
+                                    "frontText": "Sævollen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T22:04:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T22:04:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_290_9150000008467274",
+                                "destinationDisplay": {
+                                    "frontText": "Slinningen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T22:34:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T22:34:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_292_9150000008462655",
+                                "destinationDisplay": {
+                                    "frontText": "Sævollen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T23:04:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T23:04:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_294_9150000008467453",
+                                "destinationDisplay": {
+                                    "frontText": "Slinningen",
+                                    "via": [
+                                        "Sentrum"
+                                    ]
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-03T23:34:00+02:00",
+                                "expectedDepartureTime": "2024-09-03T23:34:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_296_9150000010434889",
+                                "destinationDisplay": {
+                                    "frontText": "Sentrum",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-04T00:04:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T00:04:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "MOR:ServiceJourney:1_298_9150000010434953",
+                                "destinationDisplay": {
+                                    "frontText": "Sentrum",
+                                    "via": []
+                                },
+                                "publicCode": "1",
+                                "date": "2024-09-03",
+                                "aimedDepartureTime": "2024-09-04T00:39:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T00:39:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "regionalBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "VYX:ServiceJourney:48768d70083f3bb9f4a2f5344a50f82bb406c12e",
+                                "destinationDisplay": {
+                                    "frontText": "Ålesund lufthavn/airport",
+                                    "via": []
+                                },
+                                "publicCode": "FB65",
+                                "date": "2024-09-04",
+                                "aimedDepartureTime": "2024-09-04T04:44:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T04:44:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "airportLinkBus",
+                                "notices": [],
+                                "situations": []
+                            },
+                            {
+                                "id": "VYX:ServiceJourney:23be61083ed3ea0f06b438a57fe9ac81a5b94f7c",
+                                "destinationDisplay": {
+                                    "frontText": "Ålesund lufthavn/airport",
+                                    "via": []
+                                },
+                                "publicCode": "FB65",
+                                "date": "2024-09-04",
+                                "aimedDepartureTime": "2024-09-04T05:14:00+02:00",
+                                "expectedDepartureTime": "2024-09-04T05:14:00+02:00",
+                                "cancelled": false,
+                                "realtime": false,
+                                "transportMode": "bus",
+                                "transportSubmode": "airportLinkBus",
+                                "notices": [],
+                                "situations": []
+                            }
+                        ],
+                        "situations": []
+                    }
+                ]
+            },
+            "fromQuery": {
+                "isAddress": false,
+                "searchTime": {
+                    "mode": "now"
+                },
+                "from": {
+                    "id": "NSR:StopPlace:40489",
+                    "name": "Sjukehuslomma",
+                    "locality": "Ålesund",
+                    "category": [
+                        "onstreetBus"
+                    ],
+                    "layer": "venue",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            6.311687,
+                            62.465809
+                        ]
+                    }
+                }
+            },
+            "initialCookies": {
+                "darkmode": null,
+                "language": null
+            },
+            "headersAcceptLanguage": "",
+            "referer": ""
+        },
+        "__N_SSP": true
+    },
+    "page": "/departures/[[...id]]",
+    "query": {
+        "searchMode": "now",
+        "id": [
+            "NSR:StopPlace:40489"
+        ]
+    },
+    "buildId": "69TM4-ex7upMgtcE1LFi1",
+    "isFallback": false,
+    "isExperimentalCompile": false,
+    "gssp": true,
+    "scriptLoader": []
+}

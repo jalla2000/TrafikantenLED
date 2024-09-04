@@ -2,6 +2,7 @@
 #include "ledfont.hpp"
 #include "sprite.hpp"
 #include "http_fetchers.hpp"
+#include "command_line.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -11,6 +12,8 @@
 #include <cstring>
 #include <ctime>
 #include <unistd.h>
+
+using namespace std::chrono_literals;
 
 bool timeComparator(const std::shared_ptr<Departure>& dep1, const std::shared_ptr<Departure>& dep2)
 {
@@ -33,21 +36,21 @@ std::vector<std::shared_ptr<Departure>> fetchOsloDepartures()
     return res;
 }
 
-std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(bool testMode)
-{
-    std::vector<std::shared_ptr<Departure>> res;
-    std::vector<std::shared_ptr<Departure>> sjukehuslomma = Frammr::fetchDeparture(testMode);
-    std::cout << "Fetched " << sjukehuslomma.size() << " deps for sjukehuslomma" << std::endl;
-    res.insert(res.end(), sjukehuslomma.begin(), sjukehuslomma.end());
-    std::sort(res.begin(), res.end(), timeComparator);
-    return res;
-}
+// std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(const std::string& inputFilePath)
+// {
+//     std::vector<std::shared_ptr<Departure>> res;
+//     std::vector<std::shared_ptr<Departure>> sjukehuslomma = Frammr::fetchDeparture(inputFilePath);
+//     std::cout << "Fetched " << sjukehuslomma.size() << " deps for sjukehuslomma" << std::endl;
+//     res.insert(res.end(), sjukehuslomma.begin(), sjukehuslomma.end());
+//     std::sort(res.begin(), res.end(), timeComparator);
+//     return res;
+// }
 
 template <typename T>
 void smartFilter(std::vector<std::shared_ptr<T>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
-        if (i > 15 && deps[i]->etaSeconds() >= 60*30) {
+        if (i > 15 && deps[i]->etaSeconds() >= (60s*30)) {
             deps.resize(i-1);
             return;
         }
@@ -67,13 +70,13 @@ void drawBusList(LedDisplay& display,
         display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
         display.currentX_ += 2;
         display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-        if (dep.etaSeconds_ < 60) {
+        if (dep.etaSeconds_ < 60s) {
             display.currentX_ = 117;
             display.writeTxt("nå", LedDisplay::RED);
         }
         else {
             std::stringstream ss;
-            ss << dep.etaSeconds_ / 60;
+            ss << dep.etaSeconds_.count() / 60;
             switch (ss.str().size()) {
             case 1: display.currentX_ = 106; break;
             case 2: display.currentX_ = 99; break;
@@ -103,17 +106,26 @@ std::string getAlbertText()
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1) {
-      std::string argument = argv[1];
-      if (argument == "--test-http") {
-	fetchAalesundDepartures(true);
-	return 0;
-      }
+    std::string inputFilePath;
+    bool ncursesMode = false;
+    {
+        CommandLine cmdParser("An application for displaying public transport realtime info");
+        cmdParser.addArgument({"-i", "--inputFile"}, &inputFilePath, "Path to file with fake HTML data");
+        cmdParser.addArgument({"-n", "--ncursesMode"}, &ncursesMode, "Use ncurses as output display instead");
+        try {
+            cmdParser.parse(argc, argv);
+        } catch (std::runtime_error const& e) {
+            std::cout << e.what() << std::endl;
+            return -1;
+        }
+    }
+    if (inputFilePath.length() > 0) {
+        Frammr::fetchDeparture(inputFilePath);
+        return 0;
     }
     std::string testTime = "/Date(1412619557000+0200)/";
     int t = Trafikanten::Utils::parseTime(testTime);
     std::cout << "time=" << t << std::endl;
-    //return 0;
     LedFont busFont;
     LedDisplay display("/dev/ttyUSB0", 16, &busFont);
     std::string error;

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <chrono>
 #include <memory>
 
 class Departure {
@@ -11,19 +12,21 @@ public:
     virtual std::string str() const
     {
       std::ostringstream oss;
-      oss << lineNo_ << " " << destinationDisplay_ << " " << etaSeconds_;
+      oss << lineNo_ << " " << destinationDisplay_ << " " << etaSeconds_.count();
       return oss.str();
     }
     void compressName();
-    int etaSeconds() const { return etaSeconds_; }
+    std::chrono::seconds etaSeconds() const { return etaSeconds_; }
     const std::string& lineNo() const { return lineNo_; }
     const std::string& destinationDisplay() const { return destinationDisplay_; }
-    int expectedDepartureTime() const { return expectedDepartureTime_; }
+    std::chrono::seconds expectedDepartureTime() const { return expectedDepartureTime_; }
+    std::string expectedDepartureTimeString() const { return expectedDepartureTimeString_; }
 // private:
     std::string lineNo_;
     std::string destinationDisplay_;
-    int expectedDepartureTime_ = 0;
-    int etaSeconds_ = 0;
+    std::string expectedDepartureTimeString_;
+    std::chrono::seconds expectedDepartureTime_{0};
+    std::chrono::seconds etaSeconds_{0};
 };
 
 class TrafikantenDeparture : public Departure {
@@ -31,7 +34,7 @@ public:
     virtual std::string str() const
     {
       std::ostringstream oss;
-      oss << lineNo_ << " " << destinationDisplay_ << " " << etaSeconds()
+      oss << lineNo_ << " " << destinationDisplay_ << " " << etaSeconds().count()
           << " dir=" << directionRef_ << (inCongestion_ ? " CONGESTION" : "");
       return oss.str();
     }
@@ -47,7 +50,9 @@ public:
       std::ostringstream oss;
       oss << "LineNo=" << lineNo()
 	  << " Dest=" << destinationDisplay()
-	  << " EtaSeconds=" << etaSeconds()
+    << " DepartureString=" << expectedDepartureTimeString()
+    << " DepartureTime=" << expectedDepartureTime().count()
+	  << " EtaSeconds=" << etaSeconds().count()
 	  << " Cancelled=" << cancelled_;
       return oss.str();
     }
@@ -60,11 +65,11 @@ public:
 std::string httpRequest(const std::string & url);
 
 namespace Trafikanten {
-    std::vector<std::shared_ptr<Departure>> fetchDeparture(const std::string & stopId);
+    std::vector<std::shared_ptr<Departure>> fetchDeparture(const std::string& stopId);
     namespace Utils {
       int parseTime(std::string t);
     }
 }
 namespace Frammr {
-    std::vector<std::shared_ptr<Departure>> fetchDeparture(bool testMode);
+    std::vector<std::shared_ptr<Departure>> fetchDeparture(const std::string& inputFilePath);
 }
