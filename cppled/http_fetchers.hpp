@@ -53,11 +53,12 @@ public:
     << " DepartureString=" << expectedDepartureTimeString()
     << " DepartureTime=" << expectedDepartureTime().count()
 	  << " EtaSeconds=" << etaSeconds().count()
-	  << " Cancelled=" << cancelled_;
+	  << (cancelled_ ? " Cancelled=TRUE" : "");
       return oss.str();
     }
     std::string id_;
-    int aimedDepartureTime_ = 0;
+    std::string aimedDepartureTimeString_;
+    std::chrono::seconds aimedDepartureTime_{0};
     bool cancelled_ = false;
     bool realtime_ = true;
 };

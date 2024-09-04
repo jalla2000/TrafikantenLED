@@ -188,7 +188,8 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
             dep.id_ = jsonDeparture["id"].asString();
             dep.destinationDisplay_ = jsonDeparture["destinationDisplay"]["frontText"].asString();
             dep.lineNo_ = jsonDeparture["publicCode"].asString();
-            dep.aimedDepartureTime_ = 123;    // jsonDeparture["aimedDepartureTime"].asString();
+            dep.aimedDepartureTimeString_ = jsonDeparture["aimedDepartureTime"].asString();
+            dep.aimedDepartureTime_ = convertIso8601ToEpoch(dep.aimedDepartureTimeString_);
             dep.expectedDepartureTimeString_ = jsonDeparture["expectedDepartureTime"].asString();
             dep.expectedDepartureTime_ = convertIso8601ToEpoch(dep.expectedDepartureTimeString_);
             dep.etaSeconds_ = dep.expectedDepartureTime_ - now;

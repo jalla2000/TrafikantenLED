@@ -15,9 +15,15 @@
 
 using namespace std::chrono_literals;
 
+namespace {
+
+constexpr size_t CROP_DEPARTUES_LIST_SIZE = 10;
+
 bool timeComparator(const std::shared_ptr<Departure>& dep1, const std::shared_ptr<Departure>& dep2)
 {
     return dep1->etaSeconds() < dep2->etaSeconds();
+}
+
 }
 
 std::vector<std::shared_ptr<Departure>> fetchOsloDepartures()
@@ -36,21 +42,19 @@ std::vector<std::shared_ptr<Departure>> fetchOsloDepartures()
     return res;
 }
 
-// std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(const std::string& inputFilePath)
-// {
-//     std::vector<std::shared_ptr<Departure>> res;
-//     std::vector<std::shared_ptr<Departure>> sjukehuslomma = Frammr::fetchDeparture(inputFilePath);
-//     std::cout << "Fetched " << sjukehuslomma.size() << " deps for sjukehuslomma" << std::endl;
-//     res.insert(res.end(), sjukehuslomma.begin(), sjukehuslomma.end());
-//     std::sort(res.begin(), res.end(), timeComparator);
-//     return res;
-// }
+std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(const std::string& inputFilePath)
+{
+    std::vector<std::shared_ptr<Departure>> sjukehuslomma = Frammr::fetchDeparture(inputFilePath);
+    std::cout << "Fetched " << sjukehuslomma.size() << " deps for sjukehuslomma" << std::endl;
+    std::sort(sjukehuslomma.begin(), sjukehuslomma.end(), timeComparator);
+    return sjukehuslomma;
+}
 
 template <typename T>
 void smartFilter(std::vector<std::shared_ptr<T>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
-        if (i > 15 && deps[i]->etaSeconds() >= (60s*30)) {
+        if (i > CROP_DEPARTUES_LIST_SIZE && deps[i]->etaSeconds() >= (60s*30)) {
             deps.resize(i-1);
             return;
         }
@@ -149,7 +153,7 @@ int main(int argc, char* argv[])
         if ((now - timeOfLastFetch) > 30)
         {
             std::cout << "Data is >30s old. Fetching." << std::endl;
-            departures = Frammr::fetchDeparture(inputFilePath);
+            departures = fetchAalesundDepartures(inputFilePath);
             if (departures.empty()) {
                 display.flush(-1);
                 display.currentY_ = 0;
