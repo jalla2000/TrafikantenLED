@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 # Remember to install libcurlpp-dev libjsoncpp-dev
-g++ -g -Wall -Wextra -std=c++17 sprite.cpp leddisplay.cpp http_fetchers.cpp command_line.cpp main.cpp -lcurl -ljsoncpp -lncurses
+set -x
+g++ -g -Wall -Wextra -Werror -std=c++17 sprite.cpp leddisplay.cpp http_fetchers.cpp command_line.cpp main.cpp -lcurl -ljsoncpp -lncurses

@@ -21,7 +21,28 @@ static size_t httpCallback(void *buffer,
 
 }
 
-void Departure::compressName()
+void removeString(std::string& str, const std::string& toRemove)
+{
+    if (const auto match = str.find(toRemove); match != std::string::npos) {
+        str.erase(match, toRemove.length());
+    }
+}
+
+void replaceString(std::string& str, const std::string& toReplace, const std::string& replacement)
+{
+    if (const auto match = str.find(toReplace); match != std::string::npos) {
+        str.replace(match, toReplace.length(), replacement);
+    }
+}
+
+void cropAfter(std::string& str, const std::string& cropEnd)
+{
+    if (const auto match = str.find(cropEnd); match != std::string::npos) {
+        str.resize(match + cropEnd.length());
+    }
+}
+
+void Departure::compressNameOsloVersion()
 {
     destinationDisplay_ = destinationDisplay_.substr(0, destinationDisplay_.find(" stasjon"));
     destinationDisplay_ = destinationDisplay_.substr( 0, destinationDisplay_.find(" via"));
@@ -35,6 +56,12 @@ void Departure::compressName()
         destinationDisplay_ = destinationDisplay_.substr( 0, destinationDisplay_.find("(N63") + 4);
         destinationDisplay_ += ")";
     }
+}
+
+void Departure::compressNameAaseVersion()
+{
+    replaceString(destinationDisplay_, "Ålesund lufthavn/airport", "Vigra");
+    cropAfter(destinationDisplay_, "Sykkylven");
 }
 
 std::string httpRequest(const std::string &url)
@@ -93,7 +120,7 @@ std::vector<std::shared_ptr<Departure>> Trafikanten::fetchDeparture(const std::s
                 dep.directionRef_ = parsed[(int)i]["DirectionRef"].asString();
                 dep.inCongestion_ = parsed[(int)i]["InCongestion"].asBool();
                 // std::cout << dep.str() << std::endl;
-                dep.compressName();
+                dep.compressNameOsloVersion();
                 departures.push_back(std::dynamic_pointer_cast<Departure>(departure));
             }
         }
@@ -197,6 +224,7 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
             dep.cancelled_ = jsonDeparture["cancelled"].asBool();
             dep.realtime_ = jsonDeparture["realtime"].asBool();
             std::cout << "Parsed departure: " << dep.str() << std::endl;
+            dep.compressNameAaseVersion();
             departures.push_back(std::dynamic_pointer_cast<Departure>(departure));
         }
     }

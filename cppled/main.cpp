@@ -12,6 +12,7 @@
 #include <cstring>
 #include <ctime>
 #include <unistd.h>
+#include <thread>
 
 using namespace std::chrono_literals;
 
@@ -65,10 +66,10 @@ void drawBusList(LedDisplay& display,
                  const std::vector<std::shared_ptr<Departure>>& deps,
                  size_t count)
 {
-    if (count > deps.size())
+    if (count > deps.size()) {
         count = deps.size();
-    for (size_t j = 0; j < count; ++j)
-    {
+    }
+    for (size_t j = 0; j < count; ++j) {
         const Departure& dep = *deps[j];
         display.currentX_ = 0;
         display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
@@ -113,6 +114,60 @@ bool isSerial(const std::string& outputDevice)
     return !outputDevice.empty() && outputDevice != LedDisplay::DEVICE_NCURSES;
 }
 
+void verticalScrollList(LedDisplay& display, std::vector<std::shared_ptr<Departure>>& departures)
+{
+    display.currentX_ = 0;
+    for (int i = display.displayHeight_; i > -((int)LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
+    {
+        display.flush();
+        display.currentY_ = i;
+        drawBusList(display, departures, departures.size());
+        display.send();
+        if (i % 16 == 0) {
+            std::this_thread::sleep_for(1s);
+        }
+        std::this_thread::sleep_for(20ms);
+    }
+}
+
+void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<Departure>>& departures)
+{
+    for (size_t i = display.textLines_ - 1; i < departures.size(); ++i) {
+        const auto& dep = *departures[i];
+        // std::cout << "Scrolling departure #" << i << " " << departures[i]->destinationDisplay_ << std::endl;
+        size_t widthOfScrollString =
+            display.widthOfTxt(dep.lineNo_) +
+            2 +
+            display.widthOfTxt(dep.destinationDisplay_ + " ") + 50;
+
+        for (int x = display.DISPLAY_WIDTH; x > -(static_cast<int>(widthOfScrollString)); --x) {
+
+            display.flush();
+            display.currentX_ = 0;
+            display.currentY_ = 0;
+            drawBusList(display, departures, display.textLines_ - 1);
+
+            display.currentX_ = x;
+            display.currentY_ = (display.textLines_ - 1) * display.PIXELS_PER_TEXTLINE;
+
+            display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
+            display.currentX_ += 2;
+            display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
+            display.writeTxt(" ", LedDisplay::ORANGE);
+            if (dep.etaSeconds_ < 60s) {
+                display.currentX_ = 117;
+                display.writeTxt("nå", LedDisplay::RED);
+            } else {
+                std::stringstream ss;
+                ss << dep.etaSeconds_.count() / 60;
+                display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+            }
+            display.send();
+            std::this_thread::sleep_for(20ms);
+        }
+    }
+}
+
 int main(int argc, char* argv[])
 {
     std::string inputFilePath;
@@ -155,12 +210,12 @@ int main(int argc, char* argv[])
             std::cout << "Data is >30s old. Fetching." << std::endl;
             departures = fetchAalesundDepartures(inputFilePath);
             if (departures.empty()) {
-                display.flush(-1);
+                display.flush();
                 display.currentY_ = 0;
                 display.currentX_ = 0;
                 display.writeTxt("Se tidtabell...", LedDisplay::RED);
                 display.send();
-                sleep(5);
+                std::this_thread::sleep_for(5s);
                 continue;
             }
             else {
@@ -168,18 +223,8 @@ int main(int argc, char* argv[])
             }
             smartFilter(departures);
         }
-        display.currentX_ = 0;
-        for (int i = display.displayHeight_; i > -(LedDisplay::PIXELS_PER_TEXTLINE*(int)departures.size()+1); --i)
-        {
-            display.flush(-1);
-            display.currentY_ = i;
-            drawBusList(display, departures, departures.size());
-            display.send();
-            if (i % 16 == 0) {
-                usleep(1000*1000);
-            }
-            usleep(1000*20);
-        }
+        // verticalScrollList(display, departures);
+        listWithHorizontalScroll(display, departures);
     }
     return 0;
 }

@@ -15,7 +15,8 @@ public:
       oss << lineNo_ << " " << destinationDisplay_ << " " << etaSeconds_.count();
       return oss.str();
     }
-    void compressName();
+    void compressNameOsloVersion();
+    void compressNameAaseVersion();
     std::chrono::seconds etaSeconds() const { return etaSeconds_; }
     const std::string& lineNo() const { return lineNo_; }
     const std::string& destinationDisplay() const { return destinationDisplay_; }

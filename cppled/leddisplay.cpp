@@ -52,8 +52,8 @@ bool LedDisplay::open(std::string & error)
     options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
     options.c_cflag = 0;
     options.c_cflag &= ~(CSIZE | PARENB);
-    //options.c_cflag |= CS8 | B460800;
-    options.c_cflag |= CS8 | B115200;
+    options.c_cflag |= CS8 | B460800;
+    // options.c_cflag |= CS8 | B115200;
     tcflush(deviceFileHandle_, TCIFLUSH);
     tcsetattr(deviceFileHandle_, TCSANOW, &options);
     return true;
@@ -79,15 +79,15 @@ void LedDisplay::setPixel(size_t xpos, size_t ypos, Color color)
     }
 }
 
-void LedDisplay::flush(int line)
+void LedDisplay::flush(std::optional<size_t> line)
 {
-    if (line < 0) {
-        memset(&gfxBuffer_[0], 0, gfxBuffer_.size());
-    }
-    else {
-        assert(line < (displayHeight_/PIXELS_PER_TEXTLINE));
+    if (line) {
+        std::cout << "line=" << line.value() << std::endl;
+        assert(line.value() < (displayHeight_/PIXELS_PER_TEXTLINE));
         assert(false && "Not implemented correctly");
-        memset(&gfxBuffer_[line*BYTES_PER_LINE], 0, BYTES_PER_LINE); // TODO: this is WRONG
+        memset(&gfxBuffer_[line.value()*BYTES_PER_LINE], 0, BYTES_PER_LINE); // TODO: this is WRONG
+    } else {
+        memset(&gfxBuffer_[0], 0, gfxBuffer_.size());
     }
 }
 
@@ -135,7 +135,7 @@ size_t LedDisplay::widthOfTxt(const std::string & text)
 bool LedDisplay::writeCharacter(const std::string & character,
                                 Color color)
 {
-    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
+    if (currentX_ >= static_cast<int>(DISPLAY_WIDTH) || currentY_ >= static_cast<int>(displayHeight_)) {
         return false;
     }
     if (!font_.chars_.count(character)) {
@@ -150,7 +150,7 @@ bool LedDisplay::writeCharacter(const std::string & character,
 
 void LedDisplay::writeTxt(const std::string & text, Color color)
 {
-    if (currentX_ >= DISPLAY_WIDTH || currentY_ >= displayHeight_) {
+    if (currentX_ >= static_cast<int>(DISPLAY_WIDTH) || currentY_ >= static_cast<int>(displayHeight_)) {
         return;
     }
     std::function<bool (const std::string &)> characterWriter =
@@ -174,22 +174,22 @@ void LedDisplay::drawSprite(const Sprite & sprite, Color color)
             base -= 3;
         const int dstCol = (base / 4) + (i % sprite.dataWidth_);
         const int dstRow = currentY_ + (i / sprite.dataWidth_);
-        if (dstRow > displayHeight_)
+        if (dstRow > static_cast<int>(displayHeight_))
             break;
         int fraction = (currentX_ % 4) *BITS_PER_PIXEL;
         if (fraction < 0)
             fraction += 8;
-        if (dstRow >= 0 && dstRow < displayHeight_) {
+        if (dstRow >= 0 && dstRow < static_cast<int>(displayHeight_)) {
             if (fraction) {
-                if (dstCol >= 0 && dstCol < BYTES_PER_LINE) {
+                if (dstCol >= 0 && dstCol < static_cast<int>(BYTES_PER_LINE)) {
                     gfxBuffer_[dstCol+(dstRow*BYTES_PER_LINE)] |= (sprite.data_[i] & colorfilter) >> fraction;
                 }
-                if (dstCol+1 >= 0 && dstCol+1 < BYTES_PER_LINE) {
+                if (dstCol+1 >= 0 && dstCol+1 < static_cast<int>(BYTES_PER_LINE)) {
                     gfxBuffer_[dstCol+(dstRow*BYTES_PER_LINE)+1] |= (sprite.data_[i] & colorfilter) << (8-fraction);
                 }
             }
             else {
-                if (dstCol >= 0 && dstCol < BYTES_PER_LINE) {
+                if (dstCol >= 0 && dstCol < static_cast<int>(BYTES_PER_LINE)) {
                     gfxBuffer_[dstCol+(dstRow*BYTES_PER_LINE)] |= sprite.data_[i] & colorfilter;
                 }
             }
@@ -231,6 +231,6 @@ void LedDisplay::send()
         std::cout << "Oh dear 2, something went wrong with read()! " << strerror(errno) << std::endl;
     }
     tcdrain(deviceFileHandle_);
-    //std::cout << "Sent " << sent << " characters" << std::endl;
+    // std::cout << "Sent " << sent << " characters" << std::endl;
     assert(sent == (int)gfxBuffer_.size());
 }

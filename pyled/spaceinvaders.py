@@ -11,6 +11,8 @@ DEVICE = '/dev/ttyUSB0'
 font = LedFont()
 display = LedDisplay(font, lines=DISPLAY_LINES, device=DEVICE)
 
+display.flush(DISPLAY_LINES-1)
+display.send()
 display.writeTxt("Line 1", xpos=0, ypos=0, color='red')
 display.writeTxt("Line 2", xpos=0, ypos=8, color='green')
 display.writeTxt("Line 3", xpos=0, ypos=16, color='orange')
