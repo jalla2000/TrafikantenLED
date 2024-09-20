@@ -20,6 +20,9 @@ LedDisplay::LedDisplay(const std::string & device,
     , deviceFileHandle_(-1)
     , font_(font)
 {
+    std::cout << "Created LED display"
+              << " (width=" << LedDisplay::DISPLAY_WIDTH
+              << ", height=" << displayHeight_ << ")" << std::endl;
 }
 
 LedDisplay::~LedDisplay()
