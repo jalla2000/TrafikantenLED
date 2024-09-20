@@ -73,9 +73,9 @@ void LedDisplay::setPixel(size_t xpos, size_t ypos, Color color)
     if (color == RED) {
         fraction += 1;
     }
-    gfxBuffer_[ypos*col] |= 1 << (7-fraction);
+    gfxBuffer_[col + ypos*BYTES_PER_LINE] |= 1 << (7-fraction);
     if (color == ORANGE) {
-        gfxBuffer_[ypos*col] |= 1 << (7-fraction-1);
+        gfxBuffer_[col + ypos*BYTES_PER_LINE] |= 1 << (7-fraction-1);
     }
 }
 
