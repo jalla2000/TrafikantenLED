@@ -153,10 +153,9 @@ void LedDisplay::writeTxt(const std::string & text, Color color)
     if (currentX_ >= static_cast<int>(DISPLAY_WIDTH) || currentY_ >= static_cast<int>(displayHeight_)) {
         return;
     }
-    std::function<bool (const std::string &)> characterWriter =
-        std::bind(&LedDisplay::writeCharacter, this, std::placeholders::_1, color);
-    foreachUtfCharacter(text, characterWriter);
-    return;
+    foreachUtfCharacter(text, [this, color] (const std::string& character) -> bool {
+        return writeCharacter(character, color);
+    });
 }
 
 void LedDisplay::drawSprite(const Sprite & sprite, Color color)
