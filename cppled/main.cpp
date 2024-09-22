@@ -186,6 +186,10 @@ int main(int argc, char* argv[])
     std::string testTime = "/Date(1412619557000+0200)/";
     int t = Trafikanten::Utils::parseTime(testTime);
     std::cout << "time=" << t << std::endl;
+    if (outputDevice.empty()) {
+        std::cout << "Output device must be specified: --output /dev/ttyUSB0" << std::endl;
+	return -1;
+    }
     if (outputDevice == "ncurses") {
         outputDevice = LedDisplay::DEVICE_NCURSES;
     }
