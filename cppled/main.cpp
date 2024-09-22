@@ -5,11 +5,8 @@
 #include "command_line.hpp"
 #include <iostream>
 #include <vector>
-#include <map>
 #include <sstream>
 #include <algorithm>
-#include <cassert>
-#include <cstring>
 #include <ctime>
 #include <unistd.h>
 #include <thread>
