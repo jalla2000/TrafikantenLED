@@ -236,3 +236,8 @@ void LedDisplay::send()
     // std::cout << "Sent " << sent << " characters" << std::endl;
     assert(sent == (int)gfxBuffer_.size());
 }
+
+const std::string& LedDisplay::device() const
+{
+    return devicePath_;
+}

@@ -160,7 +160,9 @@ void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<D
                 display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
             }
             display.send();
-            std::this_thread::sleep_for(20ms);
+            if (display.device() == display.DEVICE_NCURSES) {
+                std::this_thread::sleep_for(20ms);
+            }
         }
     }
 }

@@ -34,6 +34,7 @@ public:
     void writeTxt(const std::string & text, Color color);
     void drawSprite(const Sprite & sprite, Color color);
     void send();
+    const std::string& device() const;
 
     std::vector<unsigned char> gfxBuffer_;
     int currentX_ = 0;
