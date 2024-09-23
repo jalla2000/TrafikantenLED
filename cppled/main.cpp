@@ -15,11 +15,42 @@ using namespace std::chrono_literals;
 
 namespace {
 
+class Logger {
+public:
+    template <typename T>
+    Logger& operator<<(const T& value) {
+        if (!muted) {
+            std::cout << value;
+        }
+        return *this;
+    }
+    // Overload for function pointers (like std::endl)
+    Logger& operator<<(std::ostream& (*fp)(std::ostream&)) {
+        if (!muted) {
+            std::cout << fp;
+        }
+        return *this;
+    }
+    bool muted = false;
+};
+
 constexpr size_t CROP_DEPARTUES_LIST_SIZE = 10;
+Logger logger;
 
 bool timeComparator(const std::shared_ptr<Departure>& dep1, const std::shared_ptr<Departure>& dep2)
 {
     return dep1->etaSeconds() < dep2->etaSeconds();
+}
+
+std::string getClock(const std::string& isoTime)
+{
+    // ISO time: 2024-09-24T06:59:00+02:00
+    if (isoTime.length() >= 16 && isoTime[10] == 'T') {
+        return isoTime.substr(11, 5);
+    } else {
+        //auto tPos = isoTime.find("T");
+        assert(false && "Not implemented");
+    }
 }
 
 }
@@ -75,8 +106,7 @@ void drawBusList(LedDisplay& display,
         if (dep.etaSeconds_ < 60s) {
             display.currentX_ = 117;
             display.writeTxt("nå", LedDisplay::RED);
-        }
-        else {
+        } else if (dep.etaSeconds_ < 10min) {
             std::stringstream ss;
             ss << dep.etaSeconds_.count() / 60;
             switch (ss.str().size()) {
@@ -85,6 +115,9 @@ void drawBusList(LedDisplay& display,
             case 3: display.currentX_ = 92; break;
             }
             display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+        } else {
+            display.currentX_ = 99;
+            display.writeTxt(getClock(dep.expectedDepartureTimeString()), LedDisplay::ORANGE);
         }
         display.currentY_ += 8;
     }
@@ -154,10 +187,12 @@ void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<D
             if (dep.etaSeconds_ < 60s) {
                 display.currentX_ = 117;
                 display.writeTxt("nå", LedDisplay::RED);
-            } else {
+            } else if (dep.etaSeconds_ < 10min) {
                 std::stringstream ss;
                 ss << dep.etaSeconds_.count() / 60;
                 display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
+            } else {
+                display.writeTxt(getClock(dep.expectedDepartureTimeString()), LedDisplay::ORANGE);
             }
             display.send();
             if (display.device() == display.DEVICE_NCURSES) {
@@ -210,7 +245,7 @@ int main(int argc, char* argv[])
         time(&now);
         if ((now - timeOfLastFetch) > 30)
         {
-            std::cout << "Data is >30s old. Fetching." << std::endl;
+            logger << "Data is >30s old. Fetching." << std::endl;
             departures = fetchAalesundDepartures(inputFilePath);
             if (departures.empty()) {
                 display.flush();

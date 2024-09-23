@@ -160,10 +160,10 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
         }
     } else {
         std::string url = "https://reise.frammr.no/departures/NSR%3AStopPlace%3A40489?searchMode=now";
-        std::cout << "Performing HTTP request...";
+        //std::cout << "Performing HTTP request...";
         content = httpRequest(url);
-        std::cout << "done" << std::endl;
-        std::cout << "HTTP response: BEGIN" << content << "END" << std::endl;
+        //std::cout << "done" << std::endl;
+        //std::cout << "HTTP response: BEGIN" << content << "END" << std::endl;
     }
     const auto responseSize = content.length();
     bool jsonFound = false;
