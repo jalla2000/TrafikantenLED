@@ -195,12 +195,19 @@ void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<D
         for (size_t i = display.textLines_ - 1; i < departures.size(); ++i) {
             const auto& dep = *departures[i];
             {
-                const auto text = dep.lineNo_ + " " + dep.destinationDisplay_ + " ";
+                const auto text = dep.lineNo_;
                 const auto width = display.widthOfTxt(text);
                 tokens.emplace_back(text, xPos, width, LedDisplay::Color::ORANGE);
                 xPos += width;
             }
-            xPos += 5;
+            xPos += 2;
+            {
+                const auto text = dep.destinationDisplay_;
+                const auto width = display.widthOfTxt(text);
+                tokens.emplace_back(text, xPos, width, LedDisplay::Color::ORANGE);
+                xPos += width;
+            }
+            xPos += 4;
             {
                 const auto humanTime = timeString(dep);
                 const auto width = display.widthOfTxt(humanTime);
