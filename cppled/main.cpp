@@ -160,44 +160,80 @@ void verticalScrollList(LedDisplay& display, std::vector<std::shared_ptr<Departu
     }
 }
 
+std::string timeString(const Departure& departure)
+{
+    if (departure.etaSeconds_ < 60s) {
+        return "nå";
+    } else if (departure.etaSeconds_ < 15min) {
+        std::stringstream ss;
+        ss << (departure.etaSeconds_.count() / 60) << "min";
+        return ss.str();
+    } else {
+        return getClock(departure.expectedDepartureTimeString());
+    }
+}
+
 void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<Departure>>& departures)
 {
-    for (size_t i = display.textLines_ - 1; i < departures.size(); ++i) {
-        const auto& dep = *departures[i];
-        // std::cout << "Scrolling departure #" << i << " " << departures[i]->destinationDisplay_ << std::endl;
-        size_t widthOfScrollString =
-            display.widthOfTxt(dep.lineNo_) +
-            2 +
-            display.widthOfTxt(dep.destinationDisplay_ + " ") + 50;
+    struct Token {
+        Token(const std::string& token, size_t xPos, size_t pixelWidth, LedDisplay::Color color)
+            : m_token(token)
+            , m_xPos(xPos)
+            , m_pixelWidth(pixelWidth)
+            , m_color(color)
+        {
+        }
+        std::string m_token;
+        size_t m_xPos = 0;
+        size_t m_pixelWidth = 0;
+        LedDisplay::Color m_color = LedDisplay::Color::ORANGE;
+    };
 
-        for (int x = display.DISPLAY_WIDTH; x > -(static_cast<int>(widthOfScrollString)); --x) {
-
-            display.flush();
-            display.currentX_ = 0;
-            display.currentY_ = 0;
-            drawBusList(display, departures, display.textLines_ - 1);
-
-            display.currentX_ = x;
-            display.currentY_ = (display.textLines_ - 1) * display.PIXELS_PER_TEXTLINE;
-
-            display.writeTxt(dep.lineNo_, LedDisplay::ORANGE);
-            display.currentX_ += 2;
-            display.writeTxt(dep.destinationDisplay_, LedDisplay::ORANGE);
-            display.writeTxt(" ", LedDisplay::ORANGE);
-            if (dep.etaSeconds_ < 60s) {
-                display.currentX_ = 117;
-                display.writeTxt("nå", LedDisplay::RED);
-            } else if (dep.etaSeconds_ < 10min) {
-                std::stringstream ss;
-                ss << dep.etaSeconds_.count() / 60;
-                display.writeTxt(ss.str() + "min", LedDisplay::ORANGE);
-            } else {
-                display.writeTxt(getClock(dep.expectedDepartureTimeString()), LedDisplay::ORANGE);
+    std::vector<Token> tokens;
+    {
+        size_t xPos = 0;
+        for (size_t i = display.textLines_ - 1; i < departures.size(); ++i) {
+            const auto& dep = *departures[i];
+            {
+                const auto text = dep.lineNo_ + " " + dep.destinationDisplay_ + " ";
+                const auto width = display.widthOfTxt(text);
+                tokens.emplace_back(text, xPos, width, LedDisplay::Color::ORANGE);
+                xPos += width;
             }
-            display.send();
-            if (display.device() == display.DEVICE_NCURSES) {
-                std::this_thread::sleep_for(20ms);
+            xPos += 5;
+            {
+                const auto humanTime = timeString(dep);
+                const auto width = display.widthOfTxt(humanTime);
+                tokens.emplace_back(humanTime, xPos, width, dep.etaSeconds_ < 60s ? LedDisplay::Color::RED : LedDisplay::Color::ORANGE);
+                xPos += width;
             }
+            xPos += 25;
+        }
+    }
+
+    for (int x = display.DISPLAY_WIDTH; x > -int(tokens.back().m_xPos + tokens.back().m_pixelWidth); --x) {
+
+        display.flush();
+        display.currentX_ = 0;
+        display.currentY_ = 0;
+
+        drawBusList(display, departures, display.textLines_ - 1);
+
+        for (const auto& token : tokens) {
+            if ((int(token.m_xPos) + int(token.m_pixelWidth) + x) < 0) {
+                // Text is too far left
+                continue;
+            }
+            if (int(token.m_xPos) + x > int(display.DISPLAY_WIDTH)) {
+                // Text is too far right
+                break;
+            }
+            display.writeTxt(token.m_xPos + x, {}, token.m_token, token.m_color);
+        }
+
+        display.send();
+        if (display.device() == display.DEVICE_NCURSES) {
+            std::this_thread::sleep_for(20ms);
         }
     }
 }

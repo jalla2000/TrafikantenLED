@@ -151,6 +151,13 @@ bool LedDisplay::writeCharacter(const std::string & character,
     return true;
 }
 
+void LedDisplay::writeTxt(std::optional<int> x, std::optional<int> y, const std::string & text, Color color)
+{
+    if (x) { currentX_ = x.value(); }
+    if (y) { currentY_ = y.value(); }
+    writeTxt(text, color);
+}
+
 void LedDisplay::writeTxt(const std::string & text, Color color)
 {
     if (currentX_ >= static_cast<int>(DISPLAY_WIDTH) || currentY_ >= static_cast<int>(displayHeight_)) {

@@ -31,7 +31,8 @@ public:
     void flush(std::optional<size_t> line = {});
     size_t widthOfTxt(const std::string & text);
     bool writeCharacter(const std::string & character, Color color);
-    void writeTxt(const std::string & text, Color color);
+    void writeTxt(std::optional<int> x, std::optional<int> y, const std::string &text, Color color);
+    void writeTxt(const std::string &text, Color color);
     void drawSprite(const Sprite & sprite, Color color);
     void send();
     const std::string& device() const;
