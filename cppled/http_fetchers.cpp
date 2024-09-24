@@ -21,6 +21,16 @@ static size_t httpCallback(void *buffer,
 
 }
 
+void removeStringEnd(std::string& str, const std::string& toRemove)
+{
+    if (toRemove.length() > str.length()) {
+        return;
+    }
+    if (const auto match = str.find(toRemove, str.length()-toRemove.length()); match != std::string::npos) {
+        str.erase(match);
+    }
+}
+
 void removeString(std::string& str, const std::string& toRemove)
 {
     if (const auto match = str.find(toRemove); match != std::string::npos) {
@@ -60,8 +70,9 @@ void Departure::compressNameOsloVersion()
 
 void Departure::compressNameAaseVersion()
 {
-    replaceString(destinationDisplay_, "Ålesund lufthavn/airport", "Vigra");
-    cropAfter(destinationDisplay_, "Sykkylven");
+    replaceString(destinationDisplay_, "Ålesund lufthavn/airport", "Vigra"); // Ålesund lufthavn/airport
+    cropAfter(destinationDisplay_, "Sykkylven"); // Sykkylven-Stranda
+    removeStringEnd(destinationDisplay_, " ikkje"); // {"frontText":"Moa ikkje","via":["sykehuset"]}
 }
 
 std::string httpRequest(const std::string &url)
