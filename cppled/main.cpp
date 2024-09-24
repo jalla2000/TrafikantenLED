@@ -79,8 +79,7 @@ std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(const std::strin
     return sjukehuslomma;
 }
 
-template <typename T>
-void smartFilter(std::vector<std::shared_ptr<T>> & deps)
+void smartFilter(std::vector<std::shared_ptr<Departure>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
         if (i > CROP_DEPARTUES_LIST_SIZE && deps[i]->etaSeconds() >= (60s*60)) {
