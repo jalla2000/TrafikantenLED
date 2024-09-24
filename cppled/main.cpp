@@ -34,7 +34,7 @@ public:
     bool muted = false;
 };
 
-constexpr size_t CROP_DEPARTUES_LIST_SIZE = 10;
+constexpr size_t CROP_DEPARTUES_LIST_SIZE = 6;
 Logger logger;
 
 bool timeComparator(const std::shared_ptr<Departure>& dep1, const std::shared_ptr<Departure>& dep2)
@@ -83,7 +83,7 @@ template <typename T>
 void smartFilter(std::vector<std::shared_ptr<T>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
-        if (i > CROP_DEPARTUES_LIST_SIZE && deps[i]->etaSeconds() >= (60s*30)) {
+        if (i > CROP_DEPARTUES_LIST_SIZE && deps[i]->etaSeconds() >= (60s*60)) {
             deps.resize(i-1);
             return;
         }
@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
     while (true) {
         time_t now;
         time(&now);
-        if ((now - timeOfLastFetch) > 30)
+        if ((now - timeOfLastFetch) > 20)
         {
             logger << "Data is >30s old. Fetching." << std::endl;
             departures = fetchAalesundDepartures(inputFilePath);
