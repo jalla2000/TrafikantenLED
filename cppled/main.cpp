@@ -79,6 +79,15 @@ std::vector<std::shared_ptr<Departure>> fetchAalesundDepartures(const std::strin
     return sjukehuslomma;
 }
 
+void removeDeparturesContaining(std::vector<std::shared_ptr<Departure>>& deps, const std::string& text)
+{
+    deps.erase(std::remove_if(
+            deps.begin(),
+            deps.end(),
+            [&text] (const auto& dep) { return dep->destinationDisplay().find(text) != std::string::npos; }),
+        deps.end());
+}
+
 void smartFilter(std::vector<std::shared_ptr<Departure>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
@@ -244,6 +253,13 @@ void listWithHorizontalScroll(LedDisplay& display, std::vector<std::shared_ptr<D
     }
 }
 
+void compressNames(const std::vector<std::shared_ptr<Departure>>& departures)
+{
+    for (auto& dep : departures) {
+        dep->compressNameAaseVersion();
+    }
+}
+
 int main(int argc, char* argv[])
 {
     std::string inputFilePath;
@@ -301,7 +317,17 @@ int main(int argc, char* argv[])
             else {
                 timeOfLastFetch = now;
             }
+            removeDeparturesContaining(departures, "Skodje");
+            removeDeparturesContaining(departures, "Trondheim");
+            removeDeparturesContaining(departures, "Spjelkavik");
+            removeDeparturesContaining(departures, "Sykkylven");
+            removeDeparturesContaining(departures, "Kristiansund");
+            removeDeparturesContaining(departures, "Skolerute");
+            removeDeparturesContaining(departures, "Moa");
+            removeDeparturesContaining(departures, "Myrland");
+            removeDeparturesContaining(departures, "lufthavn");
             smartFilter(departures);
+            compressNames(departures);
         }
         // verticalScrollList(display, departures);
         listWithHorizontalScroll(display, departures);

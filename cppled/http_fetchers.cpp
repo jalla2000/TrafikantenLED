@@ -235,7 +235,6 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
             dep.cancelled_ = jsonDeparture["cancelled"].asBool();
             dep.realtime_ = jsonDeparture["realtime"].asBool();
             std::cout << "Parsed departure: " << dep.str() << std::endl;
-            dep.compressNameAaseVersion();
             departures.push_back(std::dynamic_pointer_cast<Departure>(departure));
         }
     }
