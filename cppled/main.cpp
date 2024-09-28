@@ -88,6 +88,20 @@ void removeDeparturesContaining(std::vector<std::shared_ptr<Departure>>& deps, c
         deps.end());
 }
 
+void removeDeparturesWithQuayId(std::vector<std::shared_ptr<Departure>>& deps, const std::string& quayId)
+{
+    deps.erase(std::remove_if(
+            deps.begin(),
+            deps.end(),
+            [&quayId] (const auto& dep) {
+                if (auto frammrDep = std::dynamic_pointer_cast<FrammrDeparture>(dep)) {
+                    return frammrDep->quayId_.find(quayId) != std::string::npos;
+                }
+                return false;
+            }),
+        deps.end());
+}
+
 void smartFilter(std::vector<std::shared_ptr<Departure>> & deps)
 {
     for (size_t i = 0; i < deps.size(); ++i) {
@@ -317,15 +331,16 @@ int main(int argc, char* argv[])
             else {
                 timeOfLastFetch = now;
             }
-            removeDeparturesContaining(departures, "Skodje");
-            removeDeparturesContaining(departures, "Trondheim");
-            removeDeparturesContaining(departures, "Spjelkavik");
-            removeDeparturesContaining(departures, "Sykkylven");
-            removeDeparturesContaining(departures, "Kristiansund");
-            removeDeparturesContaining(departures, "Skolerute");
-            removeDeparturesContaining(departures, "Moa");
+            removeDeparturesWithQuayId(departures, "NSR:Quay:69543"); // NSR:Quay:69543 east, NSR:Quay:69544 west
             removeDeparturesContaining(departures, "Myrland");
+            removeDeparturesContaining(departures, "Skolerute");
             removeDeparturesContaining(departures, "lufthavn");
+            // removeDeparturesContaining(departures, "Skodje");
+            // removeDeparturesContaining(departures, "Trondheim");
+            // removeDeparturesContaining(departures, "Spjelkavik");
+            // removeDeparturesContaining(departures, "Sykkylven");
+            // removeDeparturesContaining(departures, "Kristiansund");
+            // removeDeparturesContaining(departures, "Moa");
             smartFilter(departures);
             compressNames(departures);
         }

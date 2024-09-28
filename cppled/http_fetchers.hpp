@@ -58,6 +58,8 @@ public:
       return oss.str();
     }
     std::string id_;
+    std::string quayId_;
+    std::string quayName_;
     std::string aimedDepartureTimeString_;
     std::chrono::seconds aimedDepartureTime_{0};
     bool cancelled_ = false;

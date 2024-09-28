@@ -224,6 +224,8 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
             auto departure = std::make_shared<FrammrDeparture>();
             auto& dep = *departure;
             dep.id_ = jsonDeparture["id"].asString();
+            dep.quayId_ = quayId;
+            dep.quayName_ = quayName;
             dep.destinationDisplay_ = jsonDeparture["destinationDisplay"]["frontText"].asString();
             dep.lineNo_ = jsonDeparture["publicCode"].asString();
             dep.aimedDepartureTimeString_ = jsonDeparture["aimedDepartureTime"].asString();
