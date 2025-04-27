@@ -13,6 +13,7 @@ set(SOURCES
     leddisplay.cpp
     http_fetchers.cpp
     command_line.cpp
+    tests.cpp
     main.cpp
 )
 
@@ -24,7 +25,8 @@ find_package(CURL REQUIRED)
 find_package(jsoncpp REQUIRED)
 find_package(Curses REQUIRED)
 
-target_link_libraries(trafikanten PRIVATE CURL::libcurl JsonCpp::JsonCpp ${CURSES_LIBRARIES})
+# target_link_libraries(trafikanten PRIVATE CURL::libcurl JsonCpp::JsonCpp ${CURSES_LIBRARIES})
+target_link_libraries(trafikanten PRIVATE CURL::libcurl jsoncpp ${CURSES_LIBRARIES})
 
 # Enable warnings and debugging options
-target_compile_options(trafikanten PRIVATE -g -Wall -Wextra -Werror)
+target_compile_options(trafikanten PRIVATE -g -Wall -Wextra -Werror -Wno-error=deprecated-declarations)

@@ -75,5 +75,6 @@ namespace Trafikanten {
     }
 }
 namespace Frammr {
+    std::vector<std::shared_ptr<Departure>> jsonToDepartures(const std::string& jsonString, bool debug = false);
     std::vector<std::shared_ptr<Departure>> fetchDeparture(const std::string& inputFilePath);
 }

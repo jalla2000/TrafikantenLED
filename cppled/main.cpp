@@ -3,6 +3,7 @@
 #include "sprite.hpp"
 #include "http_fetchers.hpp"
 #include "command_line.hpp"
+#include "tests.hpp"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -278,10 +279,12 @@ int main(int argc, char* argv[])
 {
     std::string inputFilePath;
     std::string outputDevice;
+    bool runTests = false;
     {
         CommandLine cmdParser("An application for displaying public transport realtime info");
         cmdParser.addArgument({"-i", "--inputFile"}, &inputFilePath, "Path to file with fake HTML data");
         cmdParser.addArgument({"-o", "--output"}, &outputDevice, "Output device: ncurses, terminal or serial device");
+        cmdParser.addArgument({"-t", "--test"}, &runTests, "Run tests");
         try {
             cmdParser.parse(argc, argv);
         } catch (std::runtime_error const& e) {
@@ -289,6 +292,13 @@ int main(int argc, char* argv[])
             return -1;
         }
     }
+
+    if (runTests) {
+        bool success = true;
+        success &= tests::testParseJson();
+        return success ? 0 : -1;
+    }
+
     std::string testTime = "/Date(1412619557000+0200)/";
     int t = Trafikanten::Utils::parseTime(testTime);
     std::cout << "time=" << t << std::endl;
@@ -325,7 +335,7 @@ int main(int argc, char* argv[])
                 display.currentX_ = 0;
                 display.writeTxt("Se tidtabell...", LedDisplay::RED);
                 display.send();
-                std::this_thread::sleep_for(5s);
+                std::this_thread::sleep_for(15s);
                 continue;
             }
             else {

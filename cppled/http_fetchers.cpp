@@ -52,6 +52,13 @@ void cropAfter(std::string& str, const std::string& cropEnd)
     }
 }
 
+void cropTo(std::string& str, const std::string& cropEnd)
+{
+    if (const auto match = str.find(cropEnd); match != std::string::npos) {
+        str.erase(0, match+cropEnd.length());
+    }
+}
+
 void Departure::compressNameOsloVersion()
 {
     destinationDisplay_ = destinationDisplay_.substr(0, destinationDisplay_.find(" stasjon"));
@@ -71,7 +78,10 @@ void Departure::compressNameOsloVersion()
 void Departure::compressNameAaseVersion()
 {
     replaceString(destinationDisplay_, "Ålesund lufthavn/airport", "Vigra"); // Ålesund lufthavn/airport
-    cropAfter(destinationDisplay_, "Sykkylven"); // Sykkylven-Stranda
+    // cropAfter(destinationDisplay_, "Sykkylven"); // Sykkylven-Stranda
+    // cropAfter(destinationDisplay_, "Volda-Kr.sund"); // Volda-Kr.sund-Trondheim
+    // cropAfter(destinationDisplay_, "Kristiansund"); //
+    cropTo(destinationDisplay_, "-");
     removeStringEnd(destinationDisplay_, " ikkje"); // {"frontText":"Moa ikkje","via":["sykehuset"]}
 }
 
@@ -153,6 +163,60 @@ std::chrono::seconds convertIso8601ToEpoch(const std::string& isoString)
     return tp.time_since_epoch();
 }
 
+std::vector<std::shared_ptr<Departure>> Frammr::jsonToDepartures(
+    const std::string& jsonString,
+    const bool debug)
+{
+    Json::Reader reader;
+    Json::Value parsed;
+    Json::StyledWriter styledWriter;
+    std::vector<std::shared_ptr<Departure>> departures;
+    std::cout << "Parsing JSON: " << jsonString << std::endl;
+    if (reader.parse(jsonString, parsed)) {
+        std::cout << "JSON parse success" << std::endl;
+    } else {
+        std::cout << "Failed to parse JSON: " << jsonString << std::endl;
+        return {};
+    }
+
+    const auto& jsonProps = parsed["props"];
+    const auto& jsonPageProps = jsonProps["pageProps"];
+    const auto& jsonDepartures = jsonPageProps["departures"];
+    const auto& jsonStopPlace = jsonDepartures["stopPlace"];
+    const auto& jsonQuays = jsonStopPlace["quays"];
+    time_t rawtime;
+    time(&rawtime);
+    // tm * ptm = gmtime(&rawtime);
+    const auto now = std::chrono::seconds(rawtime);
+
+    if (debug) std::cout << "Found " << jsonQuays.size() << " quays" << std::endl;
+    for (const auto& quay : jsonQuays) {
+        const std::string quayName = quay["name"].asString();
+	if (debug) std::cout << "Quay name=" << quayName << std::endl;
+        const std::string quayId = quay["id"].asString();
+        for (const auto& estimatedCall : quay["estimatedCalls"]) {
+            auto departure = std::make_shared<FrammrDeparture>();
+            auto& dep = *departure;
+            dep.id_ = estimatedCall["id"].asString();
+            dep.quayId_ = quayId;
+            dep.quayName_ = quayName;
+            dep.destinationDisplay_ = estimatedCall["destinationDisplay"]["frontText"].asString();
+            dep.lineNo_ = estimatedCall["publicCode"].asString();
+            dep.aimedDepartureTimeString_ = estimatedCall["aimedDepartureTime"].asString();
+            dep.aimedDepartureTime_ = convertIso8601ToEpoch(dep.aimedDepartureTimeString_);
+            dep.expectedDepartureTimeString_ = estimatedCall["expectedDepartureTime"].asString();
+            dep.expectedDepartureTime_ = convertIso8601ToEpoch(dep.expectedDepartureTimeString_);
+            dep.etaSeconds_ = dep.expectedDepartureTime_ - now;
+            // std::cout << "Parsed ISO time " << dep.expectedDepartureTimeString_ << " -> " << dep.expectedDepartureTime_.count() << std::endl;
+            dep.cancelled_ = estimatedCall["cancelled"].asBool();
+            dep.realtime_ = estimatedCall["realtime"].asBool();
+            std::cout << "Parsed departure: " << dep.str() << std::endl;
+            departures.push_back(std::dynamic_pointer_cast<Departure>(departure));
+        }
+    }
+    return departures;
+}
+
 std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string& inputFilePath)
 {
     std::string content;
@@ -197,48 +261,6 @@ std::vector<std::shared_ptr<Departure>> Frammr::fetchDeparture(const std::string
         std::cout << "Failed to find JSON chunk! HTTP response: BEGIN" << content << "END" << std::endl;
         return {};
     }
-    Json::Reader reader;
-    Json::Value parsed;
-    Json::StyledWriter styledWriter;
-    std::vector<std::shared_ptr<Departure>> departures;
-    if (reader.parse(content, parsed)) {
-        std::cout << "JSON parse success" << std::endl;
-    } else {
-        std::cout << "Failed to parse JSON: " << content << std::endl;
-        return {};
-    }
 
-    const auto& jsonProps = parsed["props"];
-    const auto& jsonPageProps = jsonProps["pageProps"];
-    const auto& jsonDepartures = jsonPageProps["departures"];
-    const auto& jsonQuays = jsonDepartures["quays"];
-    time_t rawtime;
-    time(&rawtime);
-    // tm * ptm = gmtime(&rawtime);
-    const auto now = std::chrono::seconds(rawtime);
-
-    for (const auto& quay : jsonQuays) {
-        const std::string quayName = quay["name"].asString();
-        const std::string quayId = quay["id"].asString();
-        for (const auto& jsonDeparture : quay["departures"]) {
-            auto departure = std::make_shared<FrammrDeparture>();
-            auto& dep = *departure;
-            dep.id_ = jsonDeparture["id"].asString();
-            dep.quayId_ = quayId;
-            dep.quayName_ = quayName;
-            dep.destinationDisplay_ = jsonDeparture["destinationDisplay"]["frontText"].asString();
-            dep.lineNo_ = jsonDeparture["publicCode"].asString();
-            dep.aimedDepartureTimeString_ = jsonDeparture["aimedDepartureTime"].asString();
-            dep.aimedDepartureTime_ = convertIso8601ToEpoch(dep.aimedDepartureTimeString_);
-            dep.expectedDepartureTimeString_ = jsonDeparture["expectedDepartureTime"].asString();
-            dep.expectedDepartureTime_ = convertIso8601ToEpoch(dep.expectedDepartureTimeString_);
-            dep.etaSeconds_ = dep.expectedDepartureTime_ - now;
-            // std::cout << "Parsed ISO time " << dep.expectedDepartureTimeString_ << " -> " << dep.expectedDepartureTime_.count() << std::endl;
-            dep.cancelled_ = jsonDeparture["cancelled"].asBool();
-            dep.realtime_ = jsonDeparture["realtime"].asBool();
-            std::cout << "Parsed departure: " << dep.str() << std::endl;
-            departures.push_back(std::dynamic_pointer_cast<Departure>(departure));
-        }
-    }
-    return departures;
+    return jsonToDepartures(content);
 }
